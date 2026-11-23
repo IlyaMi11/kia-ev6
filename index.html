@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="color-scheme" content="dark">
+  <meta name="robots" content="noindex, nofollow">
   <title>Kia EV6 — Система рекуперативного торможения (800 В)</title>
   <style>
     /* =====================================================================
@@ -367,6 +368,8 @@
       object-fit: contain;
       display: block;
       cursor: zoom-in;
+      image-rendering: -webkit-optimize-contrast;
+      user-select: none;
     }
 
     .real-scheme-fallback {
@@ -440,59 +443,119 @@
       background: rgba(56, 189, 248, 0.25);
     }
 
+    /* Полноэкранный просмотр чертежа с чётким зумом по реальным пикселям */
     .scheme-modal {
       position: fixed;
       inset: 0;
       z-index: 100;
-      background: rgba(8, 11, 16, 0.92);
+      background: rgba(8, 11, 16, 0.95);
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 18px;
+      padding: 12px;
+      gap: 10px;
     }
 
     .scheme-modal-bar {
       width: 100%;
-      max-width: 1280px;
       display: flex;
+      flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 10px;
+      gap: 8px;
       color: var(--text);
       font-size: 14px;
       font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .scheme-modal-tools {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .modal-tool-btn {
+      cursor: pointer;
+      background: var(--bg-surface-2);
+      border: 1px solid var(--border-strong);
+      color: var(--text);
+      border-radius: 6px;
+      padding: 6px 11px;
+      font-size: 13px;
+      font-weight: 600;
+      min-width: 36px;
+    }
+
+    .modal-tool-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .modal-zoom-val {
+      min-width: 52px;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent);
     }
 
     .scheme-modal-close {
       cursor: pointer;
-      background: var(--bg-surface-2);
-      border: 1px solid var(--border-strong);
-      color: #ffffff;
+      background: #2b1d24;
+      border: 1px solid #7f2b38;
+      color: #fecdd3;
       border-radius: 6px;
-      padding: 6px 14px;
+      padding: 6px 13px;
       font-size: 13px;
       font-weight: 600;
     }
 
-    .scheme-modal-img-wrap {
+    .scheme-modal-close:hover {
+      background: #3f1f2b;
+      border-color: #ef4444;
+    }
+
+    .scheme-modal-viewport {
+      flex: 1;
       width: 100%;
-      max-width: 1280px;
-      max-height: 85vh;
       background: #ffffff;
       border-radius: 8px;
-      padding: 10px;
       overflow: auto;
+      position: relative;
+      cursor: grab;
+      -webkit-overflow-scrolling: touch;
+      touch-action: pan-x pan-y;
+    }
+
+    .scheme-modal-viewport.dragging {
+      cursor: grabbing;
+      user-select: none;
+    }
+
+    .scheme-modal-canvas {
+      min-width: 100%;
+      min-height: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
+      padding: 12px;
     }
 
-    .scheme-modal-img-wrap img {
-      max-width: 100%;
-      max-height: 80vh;
-      height: auto;
+    .scheme-modal-canvas img {
       display: block;
+      max-width: none;
+      max-height: none;
+      image-rendering: -webkit-optimize-contrast;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    .scheme-modal-hint {
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-sec);
+      flex-shrink: 0;
     }
 
     /* =====================================================================
@@ -1341,6 +1404,10 @@
         grid-template-columns: 1.2fr 0.8fr;
         gap: 18px;
       }
+
+      .scheme-modal {
+        padding: 16px 20px;
+      }
     }
   </style>
 </head>
@@ -1440,6 +1507,8 @@
                    class="real-scheme-img"
                    src="scheme.png"
                    alt="Принципиальная электрическая схема тормозной системы Kia EV6"
+                   draggable="false"
+                   oncontextmenu="return false;"
                    onclick="openSchemeModal()"
                    onerror="handleSchemeErr(this)">
 
@@ -1952,11 +2021,21 @@
   <div id="schemeModal" class="scheme-modal hidden" onclick="if (event.target === this) closeSchemeModal()">
     <div class="scheme-modal-bar">
       <span>Принципиальная электрическая схема тормозной системы</span>
-      <button type="button" class="scheme-modal-close" onclick="closeSchemeModal()">Закрыть ✕</button>
+      <div class="scheme-modal-tools">
+        <button type="button" class="modal-tool-btn" onclick="zoomScheme(-0.25)" title="Уменьшить">−</button>
+        <span id="schemeZoomLabel" class="modal-zoom-val num">100%</span>
+        <button type="button" class="modal-tool-btn" onclick="zoomScheme(0.25)" title="Увеличить">+</button>
+        <button type="button" class="modal-tool-btn" onclick="setSchemeFit()">По экрану</button>
+        <button type="button" class="modal-tool-btn" onclick="setSchemeNative()">1:1</button>
+        <button type="button" class="scheme-modal-close" onclick="closeSchemeModal()">Закрыть ✕</button>
+      </div>
     </div>
-    <div class="scheme-modal-img-wrap">
-      <img id="schemeModalImg" src="" alt="Чертёж в полном размере">
+    <div id="schemeViewport" class="scheme-modal-viewport">
+      <div class="scheme-modal-canvas">
+        <img id="schemeModalImg" src="" alt="Чертёж в полном размере" draggable="false" oncontextmenu="return false;">
+      </div>
     </div>
+    <div class="scheme-modal-hint">Колёсико мыши или «+ / −» — масштаб · Зажмите и тяните — перемещение по чертежу</div>
   </div>
 
   <script>
@@ -1992,8 +2071,15 @@
     }
 
     document.addEventListener('keydown', (e) => {
+      const modalOpen = !document.getElementById('schemeModal').classList.contains('hidden');
       if (e.key === 'Escape') {
         closeSchemeModal();
+        return;
+      }
+      if (modalOpen) {
+        if (e.key === '+' || e.key === '=') { e.preventDefault(); zoomScheme(0.25); }
+        else if (e.key === '-' || e.key === '_') { e.preventDefault(); zoomScheme(-0.25); }
+        else if (e.key === '0') { e.preventDefault(); setSchemeFit(); }
         return;
       }
       if (e.key === 'ArrowRight' || e.key === 'PageDown') {
@@ -2006,8 +2092,13 @@
     });
 
     // =========================================================================
-    // 1.1. ЗАГРУЗКА И ПРОСМОТР РЕАЛЬНОГО ЧЕРТЕЖА НА 1-М СЛАЙДЕ
+    // 1.1. ЗАГРУЗКА И ЧЁТКИЙ ПРОСМОТР РЕАЛЬНОГО ЧЕРТЕЖА (ЗУМ + ПЕРЕМЕЩЕНИЕ)
     // =========================================================================
+    let schemeZoom = 1;
+    let schemeMinZoom = 0.2;
+    let schemeNatW = 0;
+    let schemeNatH = 0;
+
     function handleSchemeErr(img) {
       const step = img.dataset.step || 'png';
       if (step === 'png') {
@@ -2036,16 +2127,120 @@
       document.getElementById('cadZoomBtn').classList.remove('hidden');
     }
 
+    function applySchemeZoom(newZoom, focusClientX, focusClientY) {
+      if (!schemeNatW || !schemeNatH) return;
+      const vp = document.getElementById('schemeViewport');
+      const modalImg = document.getElementById('schemeModalImg');
+
+      const clamped = Math.max(schemeMinZoom, Math.min(4, newZoom));
+      const oldZoom = schemeZoom || clamped;
+
+      // Сохраняем точку фокуса при зуме
+      const rect = vp.getBoundingClientRect();
+      const fx = (focusClientX != null) ? (focusClientX - rect.left) : (vp.clientWidth / 2);
+      const fy = (focusClientY != null) ? (focusClientY - rect.top) : (vp.clientHeight / 2);
+
+      const contentX = vp.scrollLeft + fx;
+      const contentY = vp.scrollTop + fy;
+
+      schemeZoom = clamped;
+      modalImg.style.width = `${Math.round(schemeNatW * schemeZoom)}px`;
+      modalImg.style.height = `${Math.round(schemeNatH * schemeZoom)}px`;
+      document.getElementById('schemeZoomLabel').textContent = `${Math.round(schemeZoom * 100)}%`;
+
+      const ratio = schemeZoom / oldZoom;
+      vp.scrollLeft = Math.max(0, Math.round(contentX * ratio - fx));
+      vp.scrollTop  = Math.max(0, Math.round(contentY * ratio - fy));
+    }
+
+    function zoomScheme(delta, clientX, clientY) {
+      const step = schemeZoom >= 1.5 ? delta * 1.5 : delta;
+      applySchemeZoom(schemeZoom + step, clientX, clientY);
+    }
+
+    function setSchemeFit() {
+      if (!schemeNatW || !schemeNatH) return;
+      const vp = document.getElementById('schemeViewport');
+      const availW = Math.max(200, vp.clientWidth - 28);
+      const availH = Math.max(200, vp.clientHeight - 28);
+      const fit = Math.min(availW / schemeNatW, availH / schemeNatH);
+      schemeMinZoom = Math.min(0.2, fit * 0.6);
+      // Не растягиваем мелкий снимок выше 100%, чтобы не появлялось мыло
+      applySchemeZoom(Math.min(1, fit));
+      vp.scrollLeft = 0;
+      vp.scrollTop = 0;
+    }
+
+    function setSchemeNative() {
+      if (!schemeNatW || !schemeNatH) return;
+      applySchemeZoom(1);
+    }
+
     function openSchemeModal() {
       const img = document.getElementById('realSchemeImg');
       if (!img || img.classList.contains('hidden')) return;
-      document.getElementById('schemeModalImg').src = img.src;
-      document.getElementById('schemeModal').classList.remove('hidden');
+      const modal = document.getElementById('schemeModal');
+      const modalImg = document.getElementById('schemeModalImg');
+
+      modal.classList.remove('hidden');
+
+      const initSizing = () => {
+        schemeNatW = modalImg.naturalWidth || img.naturalWidth || 1200;
+        schemeNatH = modalImg.naturalHeight || img.naturalHeight || 850;
+        requestAnimationFrame(() => setSchemeFit());
+      };
+
+      if (modalImg.src !== img.src) {
+        modalImg.onload = initSizing;
+        modalImg.src = img.src;
+      } else if (modalImg.complete && modalImg.naturalWidth > 0) {
+        initSizing();
+      } else {
+        modalImg.onload = initSizing;
+      }
     }
 
     function closeSchemeModal() {
       const modal = document.getElementById('schemeModal');
       if (modal) modal.classList.add('hidden');
+    }
+
+    function bindSchemeViewerInteraction() {
+      const vp = document.getElementById('schemeViewport');
+      let panning = false;
+      let startX = 0, startY = 0, startScrollL = 0, startScrollT = 0;
+
+      // Масштабирование колёсиком мыши в точку курсора
+      vp.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        const dir = e.deltaY < 0 ? 0.2 : -0.2;
+        zoomScheme(dir, e.clientX, e.clientY);
+      }, { passive: false });
+
+      // Перетаскивание мышью / стилусом
+      vp.addEventListener('pointerdown', (e) => {
+        if (e.pointerType === 'touch') return;
+        panning = true;
+        vp.classList.add('dragging');
+        vp.setPointerCapture(e.pointerId);
+        startX = e.clientX;
+        startY = e.clientY;
+        startScrollL = vp.scrollLeft;
+        startScrollT = vp.scrollTop;
+      });
+
+      vp.addEventListener('pointermove', (e) => {
+        if (!panning) return;
+        vp.scrollLeft = startScrollL - (e.clientX - startX);
+        vp.scrollTop  = startScrollT - (e.clientY - startY);
+      });
+
+      const stopPan = () => {
+        panning = false;
+        vp.classList.remove('dragging');
+      };
+      vp.addEventListener('pointerup', stopPan);
+      vp.addEventListener('pointercancel', stopPan);
     }
 
     // Свайп на телефоне/планшете
@@ -2615,29 +2810,4 @@
       document.getElementById('c400I').innerHTML    = `<b>${fmt(i400, 1)} А</b>`;
       document.getElementById('c800I').innerHTML    = `<b>${fmt(i800, 1)} А</b>`;
       document.getElementById('c400Loss').innerHTML = `<b>${fmt(loss400, 2)} кВт</b>`;
-      document.getElementById('c800Loss').innerHTML = `<b>${fmt(loss800, 2)} кВт</b>`;
-
-      document.getElementById('c400BarTxt').textContent = `${fmt(loss400, 2)} кВт`;
-      document.getElementById('c800BarTxt').textContent = `${fmt(loss800, 2)} кВт`;
-
-      const maxLoss = 20;
-      document.getElementById('c400Bar').style.width = `${Math.min(100, (loss400 / maxLoss) * 100).toFixed(1)}%`;
-      document.getElementById('c800Bar').style.width = `${Math.min(100, (loss800 / maxLoss) * 100).toFixed(1)}%`;
-    }
-
-    window.onload = function () {
-      buildSpeedDialStatic();
-      buildSegmentedBars();
-      bindDialInteraction();
-      bindPedalInteraction();
-      bindBarInteraction('socBar', 10, 100, (v) => { sim.soc = v; });
-
-      goToSlide(1);
-      selectNode('pmsm');
-      updateSim();
-      requestAnimationFrame(animateCar);
-    };
-  </script>
-</body>
-</html>
-```
+      document.getElementById('c800Loss').innerHTML = `<b
