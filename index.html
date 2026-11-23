@@ -1,0 +1,2878 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Kia EV6 — Система рекуперативного торможения (800 В)</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg-app: #10141b;
+      --bg-sidebar: #141922;
+      --bg-surface: #181e29;
+      --bg-surface-2: #1f2735;
+      --border: #283244;
+      --border-strong: #37455e;
+      --text: #f1f5f9;
+      --text-sec: #94a3b8;
+      --text-mute: #64748b;
+      --accent: #38bdf8;
+      --accent-soft: rgba(56, 189, 248, 0.14);
+      --regen: #22c55e;
+      --regen-soft: rgba(34, 197, 94, 0.14);
+      --hyd: #f97316;
+      --hyd-soft: rgba(249, 115, 22, 0.14);
+      --danger: #ef4444;
+      --warn: #eab308;
+      --cold: #60a5fa;
+      --font-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg-app);
+      color: var(--text);
+      font-family: var(--font-ui);
+      font-size: 15px;
+      line-height: 1.4;
+      overflow-x: hidden;
+      overscroll-behavior-x: none;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button {
+      font-family: inherit;
+      touch-action: manipulation;
+    }
+
+    .hidden {
+      display: none !important;
+      pointer-events: none !important;
+    }
+
+    .num {
+      font-variant-numeric: tabular-nums;
+    }
+
+    .app-layout {
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .mobile-header {
+      background: var(--bg-sidebar);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 30;
+    }
+
+    .brand-mark {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      font-weight: 700;
+      font-size: 15px;
+      letter-spacing: 0.02em;
+      color: var(--text);
+    }
+
+    .brand-tag {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--accent);
+      background: var(--accent-soft);
+      padding: 2px 7px;
+      border-radius: 4px;
+    }
+
+    .mobile-counter {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text-sec);
+    }
+
+    .desktop-sidebar {
+      display: none;
+    }
+
+    .workspace {
+      flex: 1;
+      padding: 12px 12px 76px 12px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .slide {
+      width: 100%;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      animation: slideFadeIn 0.22s ease-out;
+    }
+
+    @keyframes slideFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(5px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .mobile-nav {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 35;
+      background: var(--bg-sidebar);
+      border-top: 1px solid var(--border);
+      padding: 7px 10px calc(7px + env(safe-area-inset-bottom));
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+    }
+
+    .m-tab {
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text-sec);
+      border-radius: 6px;
+      padding: 8px 4px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .m-tab.active {
+      background: var(--bg-surface-2);
+      border-color: var(--border-strong);
+      color: var(--text);
+    }
+
+    .panel {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+
+    .slide-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .slide-title {
+      margin: 0;
+      font-size: 19px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.01em;
+    }
+
+    .slide-subtitle {
+      margin: 2px 0 0 0;
+      font-size: 13px;
+      color: var(--text-sec);
+    }
+
+    .preset-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .pill-btn {
+      cursor: pointer;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-strong);
+      color: var(--text-sec);
+      border-radius: 6px;
+      padding: 6px 11px;
+      font-size: 12.5px;
+      font-weight: 600;
+      transition: all 0.15s ease;
+    }
+
+    .pill-btn:hover {
+      border-color: var(--accent);
+      color: var(--text);
+    }
+
+    .pill-btn.active {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      color: #ffffff;
+    }
+
+    /* СЛАЙД 1 */
+    .title-wrap {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 20px;
+      padding: 18px;
+    }
+
+    .title-kicker {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 10px;
+    }
+
+    .title-h1 {
+      margin: 0 0 18px 0;
+      font-size: 26px;
+      line-height: 1.2;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: -0.02em;
+    }
+
+    .title-stats {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .stat-item {
+      background: var(--bg-app);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .stat-num {
+      font-size: 24px;
+      font-weight: 700;
+      color: #ffffff;
+      white-space: nowrap;
+    }
+
+    .stat-num.green { color: var(--regen); }
+    .stat-num.blue { color: var(--accent); }
+
+    .stat-desc {
+      font-size: 13px;
+      color: var(--text-sec);
+      text-align: right;
+    }
+
+    .title-authors {
+      border-top: 1px solid var(--border);
+      padding-top: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      font-size: 14px;
+      color: var(--text-sec);
+    }
+
+    .title-authors b {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .title-cad-card {
+      background: #101620;
+      border: 1px solid var(--border-strong);
+      border-radius: 10px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .cad-head {
+      padding: 9px 13px;
+      background: #141c28;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .cad-zoom-btn {
+      cursor: pointer;
+      background: transparent;
+      border: 1px solid var(--border-strong);
+      color: var(--accent);
+      border-radius: 5px;
+      padding: 4px 10px;
+      font-size: 11.5px;
+      font-weight: 600;
+    }
+
+    .cad-zoom-btn:hover {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+    }
+
+    .real-scheme-box {
+      background: #ffffff;
+      padding: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 210px;
+      max-height: 330px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .real-scheme-box.is-empty {
+      background: #0d131c;
+    }
+
+    .real-scheme-img {
+      width: 100%;
+      height: auto;
+      max-height: 314px;
+      object-fit: contain;
+      display: block;
+      cursor: zoom-in;
+      image-rendering: -webkit-optimize-contrast;
+      user-select: none;
+    }
+
+    .real-scheme-fallback {
+      text-align: center;
+      padding: 20px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-sec);
+      font-size: 13px;
+    }
+
+    .real-scheme-fallback code {
+      background: #182233;
+      color: var(--accent);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+
+    .pick-file-btn {
+      cursor: pointer;
+      display: inline-block;
+      background: var(--accent-soft);
+      border: 1px solid var(--accent);
+      color: #ffffff;
+      border-radius: 6px;
+      padding: 7px 13px;
+      font-size: 12.5px;
+      font-weight: 600;
+    }
+
+    .cad-footer {
+      padding: 11px 13px;
+      border-top: 1px solid var(--border);
+      background: #141a24;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+
+    .cad-desc {
+      margin: 0;
+      font-size: 12.5px;
+      line-height: 1.42;
+      color: var(--text-sec);
+    }
+
+    .cad-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .cad-cta {
+      cursor: pointer;
+      background: var(--accent-soft);
+      border: 1px solid var(--accent);
+      color: #ffffff;
+      border-radius: 6px;
+      padding: 7px 13px;
+      font-size: 12.5px;
+      font-weight: 600;
+      transition: background 0.15s ease;
+    }
+
+    .cad-cta:hover {
+      background: rgba(56, 189, 248, 0.25);
+    }
+
+    /* Просмотрщик чертежа */
+    .scheme-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      background: rgba(8, 11, 16, 0.95);
+      display: flex;
+      flex-direction: column;
+      padding: 12px;
+      gap: 10px;
+    }
+
+    .scheme-modal-bar {
+      width: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .scheme-modal-tools {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .modal-tool-btn {
+      cursor: pointer;
+      background: var(--bg-surface-2);
+      border: 1px solid var(--border-strong);
+      color: var(--text);
+      border-radius: 6px;
+      padding: 6px 11px;
+      font-size: 13px;
+      font-weight: 600;
+      min-width: 36px;
+    }
+
+    .modal-tool-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .modal-zoom-val {
+      min-width: 52px;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .scheme-modal-close {
+      cursor: pointer;
+      background: #2b1d24;
+      border: 1px solid #7f2b38;
+      color: #fecdd3;
+      border-radius: 6px;
+      padding: 6px 13px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .scheme-modal-close:hover {
+      background: #3f1f2b;
+      border-color: #ef4444;
+    }
+
+    .scheme-modal-viewport {
+      flex: 1;
+      width: 100%;
+      background: #ffffff;
+      border-radius: 8px;
+      overflow: auto;
+      position: relative;
+      cursor: grab;
+      -webkit-overflow-scrolling: touch;
+      touch-action: pan-x pan-y;
+    }
+
+    .scheme-modal-viewport.dragging {
+      cursor: grabbing;
+      user-select: none;
+    }
+
+    .scheme-modal-canvas {
+      min-width: 100%;
+      min-height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+    }
+
+    .scheme-modal-canvas img {
+      display: block;
+      max-width: none;
+      max-height: none;
+      image-rendering: -webkit-optimize-contrast;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    .scheme-modal-hint {
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-sec);
+      flex-shrink: 0;
+    }
+
+    /* СЛАЙД 2 */
+    .schema-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      flex: 1;
+    }
+
+    .svg-frame {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .svg-frame svg {
+      width: 100%;
+      height: auto;
+      display: block;
+      user-select: none;
+    }
+
+    .svg-node {
+      cursor: pointer;
+    }
+
+    .svg-node rect.node-box {
+      fill: #141a24;
+      stroke: #37455e;
+      stroke-width: 1.5;
+      transition: fill 0.15s ease, stroke 0.15s ease, stroke-width 0.15s ease;
+    }
+
+    .svg-node:hover rect.node-box {
+      fill: #1b2434;
+      stroke: var(--accent);
+    }
+
+    .svg-node.active rect.node-box {
+      fill: #1a283d;
+      stroke: var(--accent);
+      stroke-width: 2.5;
+    }
+
+    .node-info {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .node-group {
+      font-size: 11.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+
+    .node-info h3 {
+      margin: 0 0 12px 0;
+      font-size: 18px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .node-info ul {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--text-sec);
+      font-size: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    /* СЛАЙД 3 */
+    .sim-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      flex: 1;
+    }
+
+    .sim-visual-col {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .car-stage {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .status-line {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      background: var(--regen-soft);
+      border: 1px solid rgba(34, 197, 94, 0.35);
+      color: #dcfce7;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .status-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--regen);
+      flex-shrink: 0;
+    }
+
+    .status-line.neutral {
+      background: rgba(148, 163, 184, 0.12);
+      border-color: rgba(148, 163, 184, 0.3);
+      color: var(--text);
+    }
+    .status-line.neutral .status-dot { background: var(--text-sec); }
+
+    .status-line.info {
+      background: var(--accent-soft);
+      border-color: rgba(56, 189, 248, 0.35);
+      color: #e0f2fe;
+    }
+    .status-line.info .status-dot { background: var(--accent); }
+
+    .status-line.warn {
+      background: var(--hyd-soft);
+      border-color: rgba(249, 115, 22, 0.4);
+      color: #ffedd5;
+    }
+    .status-line.warn .status-dot { background: var(--hyd); }
+
+    .status-line.danger {
+      background: rgba(239, 68, 68, 0.16);
+      border-color: rgba(239, 68, 68, 0.45);
+      color: #fee2e2;
+    }
+    .status-line.danger .status-dot { background: var(--danger); }
+
+    .car-svg {
+      width: 100%;
+      height: auto;
+      max-height: 240px;
+      display: block;
+      margin: 0 auto;
+      user-select: none;
+    }
+
+    .energy-stream {
+      stroke-dasharray: 8 6;
+      animation: energyFlow 0.7s linear infinite;
+    }
+
+    .hyd-stream {
+      stroke-dasharray: 6 5;
+      animation: energyFlow 0.65s linear infinite;
+    }
+
+    @keyframes energyFlow {
+      from { stroke-dashoffset: 14; }
+      to   { stroke-dashoffset: 0; }
+    }
+
+    .split-box {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+    }
+
+    .split-labels {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 7px;
+    }
+
+    .split-track {
+      width: 100%;
+      height: 11px;
+      background: #232c3d;
+      border-radius: 6px;
+      overflow: hidden;
+      display: flex;
+    }
+
+    .split-regen {
+      height: 100%;
+      background: linear-gradient(90deg, #16a34a, #22c55e);
+      transition: width 0.2s ease;
+    }
+
+    .split-hyd {
+      height: 100%;
+      background: linear-gradient(90deg, #ea580c, #f97316);
+      transition: width 0.2s ease;
+    }
+
+    .telemetry-strip {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      overflow: hidden;
+    }
+
+    .tel-item {
+      padding: 11px 13px;
+      border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .tel-item:nth-child(2n) {
+      border-right: none;
+    }
+
+    .tel-item:nth-last-child(-n+2) {
+      border-bottom: none;
+    }
+
+    .tel-label {
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--text-sec);
+    }
+
+    .tel-main {
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 1.2;
+      color: #ffffff;
+    }
+
+    .tel-main.green { color: var(--regen); }
+    .tel-main.blue { color: var(--accent); }
+    .tel-main.orange { color: var(--hyd); }
+
+    .tel-extra {
+      font-size: 12px;
+      color: var(--text-mute);
+    }
+
+    .sim-controls-col {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .dial-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .speed-dial-svg {
+      width: 100%;
+      max-width: 210px;
+      height: auto;
+      display: block;
+      cursor: pointer;
+      touch-action: none;
+      user-select: none;
+    }
+
+    .speed-nudges {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 2px;
+    }
+
+    .nudge-btn {
+      cursor: pointer;
+      background: var(--bg-surface-2);
+      border: 1px solid var(--border-strong);
+      color: var(--text);
+      border-radius: 5px;
+      padding: 5px 14px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .nudge-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .ctrl-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .ctrl-row-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      color: var(--text-sec);
+    }
+
+    .ctrl-row-head b {
+      color: var(--text);
+      font-size: 14px;
+    }
+
+    .seg-bar {
+      height: 28px;
+      background: #121720;
+      border: 1px solid var(--border-strong);
+      border-radius: 5px;
+      padding: 3px;
+      display: flex;
+      gap: 2px;
+      cursor: pointer;
+      touch-action: none;
+      user-select: none;
+    }
+
+    .seg {
+      flex: 1;
+      height: 100%;
+      border-radius: 2px;
+      background: #232c3d;
+      pointer-events: none;
+      transition: background-color 0.1s ease;
+    }
+
+    .pedal-box {
+      background: #121720;
+      border: 1px solid var(--border-strong);
+      border-radius: 7px;
+      padding: 6px 8px 7px 8px;
+      cursor: ew-resize;
+      touch-action: none;
+      user-select: none;
+    }
+
+    .pedal-svg {
+      width: 100%;
+      height: auto;
+      max-height: 112px;
+      display: block;
+    }
+
+    .pedal-readout {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 4px;
+      padding-top: 5px;
+      border-top: 1px solid rgba(40, 50, 68, 0.8);
+      font-size: 12px;
+      color: var(--text-sec);
+    }
+
+    .pedal-readout b {
+      font-size: 14px;
+      color: var(--accent);
+    }
+
+    .pedal-slider-wrap {
+      padding: 4px 2px 0 2px;
+    }
+
+    .pedal-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 10px;
+      border-radius: 5px;
+      background: #232c3d;
+      outline: none;
+      cursor: pointer;
+      touch-action: none;
+    }
+
+    .pedal-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 3px solid var(--accent);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
+      cursor: pointer;
+    }
+
+    .pedal-slider::-moz-range-thumb {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 3px solid var(--accent);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
+      cursor: pointer;
+    }
+
+    .paddle-bar {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 5px;
+    }
+
+    .p-btn {
+      cursor: pointer;
+      padding: 8px 4px;
+      border-radius: 5px;
+      border: 1px solid var(--border-strong);
+      background: #121720;
+      color: var(--text-sec);
+      font-size: 13px;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .p-btn.on {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      color: #ffffff;
+    }
+
+    .p-btn.ip.on {
+      background: var(--regen-soft);
+      border-color: var(--regen);
+      color: #ffffff;
+    }
+
+    .temp-switch {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      margin-top: 2px;
+    }
+
+    .t-btn {
+      cursor: pointer;
+      padding: 8px 6px;
+      border-radius: 5px;
+      border: 1px solid var(--border-strong);
+      background: #121720;
+      color: var(--text-sec);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .t-btn.active-norm {
+      background: var(--regen-soft);
+      border-color: var(--regen);
+      color: #ffffff;
+    }
+
+    .t-btn.active-cold {
+      background: rgba(96, 165, 250, 0.18);
+      border-color: var(--cold);
+      color: #ffffff;
+    }
+
+    /* СЛАЙД 4 */
+    .calc-table-box {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+
+    table.cmp-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+    }
+
+    table.cmp-table th,
+    table.cmp-table td {
+      padding: 10px 10px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+    }
+
+    table.cmp-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    table.cmp-table th {
+      background: #141a24;
+      color: var(--text-sec);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    table.cmp-table .col-val {
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    table.cmp-table .col-800 {
+      background: rgba(56, 189, 248, 0.06);
+    }
+
+    table.cmp-table th.col-800 {
+      color: var(--accent);
+    }
+
+    .col-note {
+      display: none;
+    }
+
+    .calc-bottom-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .calc-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+
+    .calc-card-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 10px;
+    }
+
+    .bar-row {
+      margin-bottom: 10px;
+    }
+    .bar-row:last-child { margin-bottom: 0; }
+
+    .bar-head {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      margin-bottom: 5px;
+      color: var(--text-sec);
+    }
+
+    .bar-track {
+      height: 11px;
+      background: #232c3d;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .bar-fill-400 {
+      height: 100%;
+      background: var(--danger);
+      transition: width 0.25s ease;
+    }
+
+    .bar-fill-800 {
+      height: 100%;
+      background: var(--regen);
+      transition: width 0.25s ease;
+    }
+
+    .city-list {
+      margin: 0;
+      padding-left: 18px;
+      font-size: 14px;
+      color: var(--text-sec);
+    }
+
+    .city-list li {
+      margin-bottom: 6px;
+    }
+
+    .city-list b {
+      color: var(--text);
+    }
+
+    /* ПК И WINDOWS-МУЛЬТИБОРД */
+    @media (min-width: 1024px) {
+      .mobile-header,
+      .mobile-nav {
+        display: none;
+      }
+
+      .app-layout {
+        height: 100vh;
+        min-height: 680px;
+        flex-direction: row;
+        overflow: hidden;
+      }
+
+      .desktop-sidebar {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        width: 235px;
+        flex-shrink: 0;
+        background: var(--bg-sidebar);
+        border-right: 1px solid var(--border);
+        padding: 22px 16px;
+      }
+
+      .sb-brand {
+        padding-bottom: 18px;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 18px;
+      }
+
+      .sb-brand-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .sb-brand-sub {
+        font-size: 12px;
+        color: var(--text-sec);
+        margin-top: 5px;
+      }
+
+      .sb-nav {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        flex: 1;
+      }
+
+      .sb-btn {
+        cursor: pointer;
+        width: 100%;
+        text-align: left;
+        background: transparent;
+        border: 1px solid transparent;
+        border-radius: 7px;
+        padding: 12px 12px;
+        color: var(--text-sec);
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        font-size: 14.5px;
+        font-weight: 600;
+        transition: all 0.15s ease;
+      }
+
+      .sb-btn:hover {
+        background: var(--bg-surface);
+        color: var(--text);
+      }
+
+      .sb-btn.active {
+        background: var(--bg-surface-2);
+        border-color: var(--border-strong);
+        color: #ffffff;
+      }
+
+      .sb-num {
+        width: 24px;
+        height: 24px;
+        border-radius: 5px;
+        background: #1d2533;
+        color: var(--text-sec);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 700;
+        flex-shrink: 0;
+      }
+
+      .sb-btn.active .sb-num {
+        background: var(--accent);
+        color: #0b111a;
+      }
+
+      .sb-footer {
+        border-top: 1px solid var(--border);
+        padding-top: 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .sb-arrows {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+
+      .sb-arrow-btn {
+        cursor: pointer;
+        background: var(--bg-surface);
+        border: 1px solid var(--border-strong);
+        color: var(--text);
+        border-radius: 6px;
+        padding: 9px 10px;
+        font-size: 13.5px;
+        font-weight: 600;
+      }
+
+      .sb-arrow-btn:hover:not(:disabled) {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+
+      .sb-arrow-btn:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+      }
+
+      .sb-hint {
+        font-size: 11.5px;
+        color: var(--text-mute);
+        text-align: center;
+      }
+
+      .workspace {
+        flex: 1;
+        padding: 22px 28px;
+        overflow-y: auto;
+      }
+
+      .slide {
+        max-width: 1380px;
+        margin: 0 auto;
+        height: 100%;
+      }
+
+      .slide-title {
+        font-size: 24px;
+      }
+
+      .title-wrap {
+        display: grid;
+        grid-template-columns: 1.15fr 0.85fr;
+        gap: 36px;
+        align-items: center;
+        padding: 36px 42px;
+        height: 100%;
+      }
+
+      .title-h1 {
+        font-size: 38px;
+        line-height: 1.15;
+        margin-bottom: 26px;
+      }
+
+      .title-stats {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin-bottom: 28px;
+      }
+
+      .stat-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+        padding: 16px;
+      }
+
+      .stat-num {
+        font-size: 28px;
+      }
+
+      .stat-desc {
+        text-align: left;
+      }
+
+      .title-authors {
+        flex-direction: row;
+        gap: 32px;
+        font-size: 15px;
+      }
+
+      .title-cad-card {
+        max-height: 100%;
+      }
+
+      .schema-grid {
+        grid-template-columns: 7fr 3fr;
+        gap: 18px;
+        align-items: stretch;
+      }
+
+      .node-info h3 {
+        font-size: 21px;
+      }
+
+      .node-info ul {
+        font-size: 15px;
+      }
+
+      .sim-grid {
+        grid-template-columns: 1fr 330px;
+        gap: 18px;
+        align-items: stretch;
+      }
+
+      .car-svg {
+        max-height: 310px;
+      }
+
+      .telemetry-strip {
+        grid-template-columns: repeat(4, 1fr);
+      }
+
+      .tel-item {
+        border-bottom: none;
+        border-right: 1px solid var(--border);
+        padding: 13px 16px;
+      }
+
+      .tel-item:nth-child(2n) {
+        border-right: 1px solid var(--border);
+      }
+
+      .tel-item:last-child {
+        border-right: none;
+      }
+
+      .tel-main {
+        font-size: 23px;
+      }
+
+      .col-note {
+        display: table-cell;
+      }
+
+      table.cmp-table {
+        font-size: 15px;
+      }
+
+      table.cmp-table th,
+      table.cmp-table td {
+        padding: 13px 16px;
+      }
+
+      .calc-bottom-grid {
+        grid-template-columns: 1.2fr 0.8fr;
+        gap: 18px;
+      }
+
+      .scheme-modal {
+        padding: 16px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+
+    <!-- МОБИЛЬНАЯ ШАПКА -->
+    <header class="mobile-header">
+      <div class="brand-mark">
+        <span>Kia EV6</span>
+        <span class="brand-tag">800 В</span>
+      </div>
+      <div id="mobileSlideNum" class="mobile-counter num">1 / 4</div>
+    </header>
+
+    <!-- ЛЕВАЯ ПАНЕЛЬ ДЛЯ ПК И МУЛЬТИБОРДА -->
+    <aside class="desktop-sidebar">
+      <div>
+        <div class="sb-brand">
+          <div class="sb-brand-title">
+            <span>Kia EV6</span>
+            <span class="brand-tag">800 В</span>
+          </div>
+          <div class="sb-brand-sub">Рекуперативное торможение</div>
+        </div>
+
+        <nav class="sb-nav" aria-label="Навигация по слайдам">
+          <button type="button" class="sb-btn active" data-tab="1" onclick="goToSlide(1)">
+            <span class="sb-num">1</span>
+            <span>Титульный слайд</span>
+          </button>
+          <button type="button" class="sb-btn" data-tab="2" onclick="goToSlide(2)">
+            <span class="sb-num">2</span>
+            <span>Структурная схема</span>
+          </button>
+          <button type="button" class="sb-btn" data-tab="3" onclick="goToSlide(3)">
+            <span class="sb-num">3</span>
+            <span>Эмулятор режимов</span>
+          </button>
+          <button type="button" class="sb-btn" data-tab="4" onclick="goToSlide(4)">
+            <span class="sb-num">4</span>
+            <span>Расчёт 400 / 800 В</span>
+          </button>
+        </nav>
+      </div>
+
+      <div class="sb-footer">
+        <div class="sb-arrows">
+          <button type="button" id="deskPrev" class="sb-arrow-btn" onclick="changeSlide(-1)">← Назад</button>
+          <button type="button" id="deskNext" class="sb-arrow-btn" onclick="changeSlide(1)">Далее →</button>
+        </div>
+        <div class="sb-hint">Клавиши ← и → на клавиатуре</div>
+      </div>
+    </aside>
+
+    <!-- ОСНОВНАЯ РАБОЧАЯ ОБЛАСТЬ -->
+    <main id="stage" class="workspace">
+
+      <!-- СЛАЙД 1: ТИТУЛ -->
+      <section class="slide" data-slide="1">
+        <div class="panel title-wrap">
+          <div>
+            <div class="title-kicker">ГУО «Минский политехнический колледж» · IX НПК «Молодежь 21 века» · Секция 2</div>
+            <h1 class="title-h1">
+              Электронная система рекуперативного торможения на базе 800-вольтовой платформы (Kia EV6)
+            </h1>
+
+            <div class="title-stats">
+              <div class="stat-item">
+                <div class="stat-num blue num">800 В</div>
+                <div class="stat-desc">Архитектура ВВБ GB2 и SiC-инвертора</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-num green num">−75%</div>
+                <div class="stat-desc">Тепловых потерь I²R против 400 В</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-num num">до 22%</div>
+                <div class="stat-desc">Возврата энергии в городском цикле</div>
+              </div>
+            </div>
+
+            <div class="title-authors">
+              <div>Выполнил: <b>Бондарев Илья Юрьевич</b>, 4 курс, гр. 41О</div>
+              <div>Руководитель: <b>Зыбин Олег Львович</b>, преподаватель</div>
+            </div>
+          </div>
+
+          <div class="title-cad-card no-swipe">
+            <div class="cad-head">
+              <span>Электрическая схема тормозной системы</span>
+              <button type="button" id="cadZoomBtn" class="cad-zoom-btn" onclick="openSchemeModal()">Увеличить</button>
+            </div>
+
+            <div id="realSchemeBox" class="real-scheme-box">
+              <img id="realSchemeImg"
+                   class="real-scheme-img"
+                   src="scheme.png"
+                   alt="Принципиальная электрическая схема тормозной системы Kia EV6"
+                   draggable="false"
+                   oncontextmenu="return false;"
+                   onclick="openSchemeModal()">
+
+              <div id="realSchemeFallback" class="real-scheme-fallback hidden">
+                <div>Положите картинку чертежа <code>scheme.png</code> (или <code>scheme.jpg</code>) в репозиторий рядом с <code>index.html</code></div>
+                <label class="pick-file-btn" for="localSchemeInput">Открыть чертёж с устройства</label>
+              </div>
+              <input id="localSchemeInput" type="file" accept="image/*" class="hidden" onchange="loadLocalScheme(event)">
+            </div>
+
+            <div class="cad-footer">
+              <p class="cad-desc">
+                Принципиальная схема объединяет силовой контур 800 В (PMSM, SiC-инвертор, BMS, ВВБ GB2), бустер IEB и резервную сеть 12 В (LDC, IBS, приборы A5).
+              </p>
+              <div class="cad-actions">
+                <button type="button" class="cad-cta" onclick="goToSlide(2)">
+                  Интерактивная схема →
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- СЛАЙД 2: СТРУКТУРНАЯ СХЕМА -->
+      <section class="slide hidden" data-slide="2">
+        <div class="slide-header">
+          <h2 class="slide-title">Структурная схема тормозной системы</h2>
+        </div>
+
+        <div class="schema-grid">
+          <div class="svg-frame no-swipe">
+            <svg viewBox="0 0 820 420" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <marker id="arrHv" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                  <path d="M 0 1 L 10 5 L 0 9 z" fill="#f97316"/>
+                </marker>
+                <marker id="arr12" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                  <path d="M 0 1 L 10 5 L 0 9 z" fill="#38bdf8"/>
+                </marker>
+                <marker id="arrCan" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse">
+                  <path d="M 0 1 L 10 5 L 0 9 z" fill="#94a3b8"/>
+                </marker>
+                <marker id="arrMech" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                  <path d="M 0 1 L 10 5 L 0 9 z" fill="#ef4444"/>
+                </marker>
+              </defs>
+
+              <rect x="10" y="10" width="800" height="114" rx="5" fill="rgba(249, 115, 22, 0.05)" stroke="rgba(249, 115, 22, 0.4)" stroke-width="1.2" stroke-dasharray="6,4"/>
+              <text x="22" y="28" font-size="11.5" font-weight="700" fill="#f97316" font-family="Segoe UI, Roboto, Arial, sans-serif">КОНТУР 800 В</text>
+
+              <line x1="172" y1="72" x2="218" y2="72" stroke="#f97316" stroke-width="2.8" marker-start="url(#arrHv)" marker-end="url(#arrHv)"/>
+              <text x="195" y="61" text-anchor="middle" font-size="11" font-weight="600" fill="#f97316" font-family="Segoe UI, Roboto, Arial, sans-serif">3~ AC</text>
+
+              <line x1="382" y1="72" x2="432" y2="72" stroke="#f97316" stroke-width="2.8" marker-start="url(#arrHv)" marker-end="url(#arrHv)"/>
+              <text x="407" y="61" text-anchor="middle" font-size="11" font-weight="600" fill="#f97316" font-family="Segoe UI, Roboto, Arial, sans-serif">800 В</text>
+
+              <line x1="592" y1="72" x2="640" y2="72" stroke="#f97316" stroke-width="2.8" marker-start="url(#arrHv)" marker-end="url(#arrHv)"/>
+              <text x="616" y="61" text-anchor="middle" font-size="11" font-weight="600" fill="#f97316" font-family="Segoe UI, Roboto, Arial, sans-serif">800 В</text>
+
+              <path d="M 512 104 L 512 146 L 385 146 L 385 200" fill="none" stroke="#f97316" stroke-width="2.2" marker-end="url(#arrHv)"/>
+
+              <line x1="100" y1="170" x2="705" y2="170" stroke="#94a3b8" stroke-width="1.8" stroke-dasharray="6,4"/>
+              <rect x="224" y="159" width="96" height="21" rx="3" fill="#181e29" stroke="#37455e" stroke-width="1"/>
+              <text x="272" y="173" text-anchor="middle" font-size="11" font-weight="600" fill="#cbd5e1" font-family="Segoe UI, Roboto, Arial, sans-serif">Шина CAN</text>
+
+              <line x1="300" y1="104" x2="300" y2="170" stroke="#94a3b8" stroke-width="1.4" stroke-dasharray="4,3"/>
+              <line x1="485" y1="104" x2="485" y2="170" stroke="#94a3b8" stroke-width="1.4" stroke-dasharray="4,3"/>
+              <line x1="100" y1="170" x2="100" y2="200" stroke="#94a3b8" stroke-width="1.4" stroke-dasharray="4,3" marker-end="url(#arrCan)"/>
+              <line x1="705" y1="170" x2="705" y2="200" stroke="#94a3b8" stroke-width="1.4" stroke-dasharray="4,3" marker-end="url(#arrCan)"/>
+
+              <line x1="385" y1="264" x2="385" y2="306" stroke="#38bdf8" stroke-width="2" marker-end="url(#arr12)"/>
+              <text x="410" y="290" font-size="11" font-weight="600" fill="#38bdf8" font-family="Segoe UI, Roboto, Arial, sans-serif">12 В</text>
+
+              <path d="M 300 232 L 185 232" fill="none" stroke="#38bdf8" stroke-width="2" marker-end="url(#arr12)"/>
+              <text x="242" y="224" text-anchor="middle" font-size="11" font-weight="600" fill="#38bdf8" font-family="Segoe UI, Roboto, Arial, sans-serif">12 В</text>
+
+              <path d="M 470 232 L 620 232" fill="none" stroke="#38bdf8" stroke-width="2" marker-end="url(#arr12)"/>
+              <text x="545" y="224" text-anchor="middle" font-size="11" font-weight="600" fill="#38bdf8" font-family="Segoe UI, Roboto, Arial, sans-serif">12 В / LIN</text>
+
+              <line x1="100" y1="264" x2="100" y2="306" stroke="#ef4444" stroke-width="2" marker-end="url(#arrMech)"/>
+              <line x1="705" y1="264" x2="705" y2="306" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4,3" marker-start="url(#arrCan)" marker-end="url(#arrCan)"/>
+
+              <g class="svg-node active" data-node="pmsm" onclick="selectNode('pmsm')">
+                <rect class="node-box" x="22" y="40" width="148" height="64" rx="5"/>
+                <text x="96" y="68" text-anchor="middle" font-size="13.5" font-weight="700" fill="#22c55e" font-family="Segoe UI, Roboto, Arial, sans-serif">PMSM</text>
+                <text x="96" y="88" text-anchor="middle" font-size="11.5" fill="#cbd5e1" font-family="Segoe UI, Roboto, Arial, sans-serif">Электродвигатель</text>
+              </g>
+
+              <g class="svg-node" data-node="mcu" onclick="selectNode('mcu')">
+                <rect class="node-box" x="220" y="40" width="160" height="64" rx="5"/>
+                <text x="300" y="68" text-anchor="middle" font-size="13.5" font-weight="700" fill="#38bdf8" font-family="Segoe UI, Roboto, Arial, sans-serif">Инвертор MCU</text>
+                <text x="300" y="88" text-anchor="middle" font-size="11.5" fill="#cbd5e1" font-family="Segoe UI, Roboto, Arial, sans-serif">SiC-MOSFET</text>
+              </g>
+
+              <g class="svg-node" data-node="bms" onclick="selectNode('bms')">
+                <rect class="node-box" x="434" y="40" width="156" height="64" rx="5"/>
+                <text x="512" y="68" text-anchor="middle" font-size="13.5" font-weight="700" fill="#38bdf8" font-family="Segoe UI, Roboto, Arial, sans-serif">Блок A4</text>
+                <text x="512" y="88" text-anchor="middle" font-size="11.5" fill="#cbd5e1" font-family="Segoe UI, Roboto, Arial, sans-serif">BDU / BMS</text>
+              </g>
+
+              <g class="svg-node" data-node="gb2" onclick="selectNode('gb2')">
+                <rect class="node-box" x="642" y="40" width="154" height="64" rx="5"/>
+                <text x="719" y="68" text-anchor="middle" font-size="13.5" font-weight="700" fill="#22c55e" font-family="Segoe UI, Roboto, Arial, sans-serif">ВВБ GB2</text>
+                <text x="719" y="88" text-anchor="middle" font-size="11.5" fill="#cbd5e1" font-family="Segoe UI, Roboto, Arial, sans-serif">Батарея 800 В</text>
+              </g>
+
+              <g class="svg-node" data-node="ieb" onclick="selectNode('ieb')">
+                <rect class="node-box" x="18" y="202" width="164" height="62" rx="5"/>
+                <text x="100" y="229" text-anchor="middle" font-size="13.5" font-weight="700" fill="#f1f5f9" font-family="Segoe UI, Roboto, Arial, sans-serif">Бустер A1 (IEB)</text>
+                <text x="100" y="249" text-anchor="middle" font-size="11" fill="#94a3b8" font-family="Segoe UI, Roboto, Arial, sans-serif">Тормозной привод</text>
+              </g>
+
+              <g class="svg-node" data-node="ieb" onclick="selectNode('ieb')">
+                <rect x="26" y="308" width="148" height="48" rx="5" fill="#1e1820" stroke="#7f2b38" stroke-width="1.3"/>
+                <text x="100" y="337" text-anchor="middle" font-size="12.5" font-weight="700" fill="#fca5a5" font-family="Segoe UI, Roboto, Arial, sans-serif">Суппорты</text>
+              </g>
+
+              <g class="svg-node" data-node="ldc" onclick="selectNode('ldc')">
+                <rect class="node-box" x="302" y="202" width="166" height="62" rx="5"/>
+                <text x="385" y="229" text-anchor="middle" font-size="13.5" font-weight="700" fill="#38bdf8" font-family="Segoe UI, Roboto, Arial, sans-serif">DC-DC LDC (U2)</text>
+                <text x="385" y="249" text-anchor="middle" font-size="11" fill="#94a3b8" font-family="Segoe UI, Roboto, Arial, sans-serif">800 В → 12 В</text>
+              </g>
+
+              <g class="svg-node" data-node="ibs" onclick="selectNode('ibs')">
+                <rect class="node-box" x="302" y="308" width="166" height="48" rx="5"/>
+                <text x="385" y="337" text-anchor="middle" font-size="12.5" font-weight="700" fill="#f1f5f9" font-family="Segoe UI, Roboto, Arial, sans-serif">АКБ GB1 + IBS</text>
+              </g>
+
+              <g class="svg-node" data-node="obd" onclick="selectNode('obd')">
+                <rect class="node-box" x="622" y="202" width="166" height="62" rx="5"/>
+                <text x="705" y="229" text-anchor="middle" font-size="13.5" font-weight="700" fill="#f1f5f9" font-family="Segoe UI, Roboto, Arial, sans-serif">Приборы A5</text>
+                <text x="705" y="249" text-anchor="middle" font-size="11" fill="#94a3b8" font-family="Segoe UI, Roboto, Arial, sans-serif">Индикация + LCD</text>
+              </g>
+
+              <g class="svg-node" data-node="obd" onclick="selectNode('obd')">
+                <rect class="node-box" x="622" y="308" width="166" height="48" rx="5"/>
+                <text x="705" y="337" text-anchor="middle" font-size="12.5" font-weight="700" fill="#f1f5f9" font-family="Segoe UI, Roboto, Arial, sans-serif">OBD-II (XS4)</text>
+              </g>
+
+              <rect x="18" y="378" width="784" height="30" rx="4" fill="#181e29" stroke="#283244" stroke-width="1"/>
+              <line x1="40" y1="393" x2="72" y2="393" stroke="#f97316" stroke-width="2.8"/>
+              <text x="80" y="397" font-size="11.5" fill="#cbd5e1" font-family="Segoe UI, Roboto, Arial, sans-serif">800 В</text>
+
+              <line x1="210" y1="393" x2="242" y2="393" stroke="#38bdf8" stroke-width="2"/>
+              <text x="250" y="397" font-size="11.5" fill="#cbd5e1" font-family="Segoe UI, Roboto, Arial, sans-serif">12 В</text>
+
+              <line x1="380" y1="393" x2="412" y2="393" stroke="#94a3b8" stroke-width="1.8" stroke-dasharray="5,3"/>
+              <text x="420" y="397" font-size="11.5" fill="#cbd5e1" font-family="Segoe UI, Roboto, Arial, sans-serif">CAN / LIN / I2C</text>
+
+              <line x1="610" y1="393" x2="642" y2="393" stroke="#ef4444" stroke-width="2"/>
+              <text x="650" y="397" font-size="11.5" fill="#cbd5e1" font-family="Segoe UI, Roboto, Arial, sans-serif">Гидравлика</text>
+            </svg>
+          </div>
+
+          <div id="nodeCard" class="panel node-info"></div>
+        </div>
+      </section>
+
+      <!-- СЛАЙД 3: ЭМУЛЯТОР РЕЖИМОВ -->
+      <section class="slide hidden" data-slide="3">
+        <div class="slide-header">
+          <h2 class="slide-title">Эмулятор режимов рекуперации</h2>
+          <div class="preset-row" id="presetBar">
+            <button type="button" class="pill-btn active" onclick="applyPreset('city', this)">Город</button>
+            <button type="button" class="pill-btn" onclick="applyPreset('coast', this)">Накат</button>
+            <button type="button" class="pill-btn" onclick="applyPreset('cold', this)">Мороз −15 °C</button>
+            <button type="button" class="pill-btn" onclick="applyPreset('full', this)">Заряд 98%</button>
+            <button type="button" class="pill-btn" onclick="applyPreset('panic', this)">Тормоз в пол</button>
+          </div>
+        </div>
+
+        <div class="sim-grid">
+          <div class="sim-visual-col">
+            <div class="car-stage">
+              <div id="ecuStatusLine" class="status-line">
+                <span class="status-dot"></span>
+                <span id="ecuStatusText">Штатная рекуперация: PMSM → SiC MCU → ВВБ GB2</span>
+              </div>
+
+              <svg id="carSceneSvg" class="car-svg" viewBox="0 0 720 235" xmlns="http://www.w3.org/2000/svg" aria-label="Схема силовой установки Kia EV6">
+                <defs>
+                  <linearGradient id="bodyGlass" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#3b597d" stop-opacity="0.28"/>
+                    <stop offset="100%" stop-color="#121a26" stop-opacity="0.16"/>
+                  </linearGradient>
+                  <marker id="flowArr" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+                    <path d="M 0 1 L 9 5 L 0 9 z" fill="#22c55e"/>
+                  </marker>
+                  <marker id="hydArr" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto">
+                    <path d="M 0 1 L 9 5 L 0 9 z" fill="#f97316"/>
+                  </marker>
+                </defs>
+
+                <line x1="20" y1="204" x2="700" y2="204" stroke="#243044" stroke-width="1.4"/>
+                <g id="roadMarks" stroke="#33435e" stroke-width="2" stroke-linecap="round">
+                  <line x1="24" y1="216" x2="88" y2="216"/>
+                  <line x1="176" y1="216" x2="240" y2="216"/>
+                  <line x1="328" y1="216" x2="392" y2="216"/>
+                  <line x1="480" y1="216" x2="544" y2="216"/>
+                  <line x1="632" y1="216" x2="696" y2="216"/>
+                </g>
+
+                <path d="M 594 152 L 594 184 L 492 184 L 478 178 L 222 178 L 190 158"
+                      fill="none" stroke="#256a8a" stroke-width="1.8" stroke-dasharray="5 3" opacity="0.65"/>
+                <rect x="590" y="134" width="9" height="32" rx="2" fill="#172b3a" stroke="#2d7a9c" stroke-width="1.2"/>
+
+                <rect x="228" y="152" width="246" height="24" rx="4" fill="#101722" stroke="#3b516e" stroke-width="1.5"/>
+                <g id="battModulesGroup"></g>
+
+                <rect x="132" y="150" width="54" height="32" rx="6" fill="#162536" stroke="#38bdf8" stroke-width="1.4"/>
+                <line x1="143" y1="152" x2="143" y2="180" stroke="#284663" stroke-width="1.2"/>
+                <line x1="155" y1="152" x2="155" y2="180" stroke="#284663" stroke-width="1.2"/>
+                <line x1="167" y1="152" x2="167" y2="180" stroke="#284663" stroke-width="1.2"/>
+
+                <g id="regenFlowGroup">
+                  <path d="M 184 148 L 184 128" fill="none" stroke="#22c55e" stroke-width="3" class="energy-stream"/>
+                  <path d="M 216 118 L 236 118 L 236 150" fill="none" stroke="#22c55e" stroke-width="3.2" class="energy-stream" marker-end="url(#flowArr)"/>
+                  <path d="M 255 164 L 456 164" fill="none" stroke="#22c55e" stroke-width="2.2" class="energy-stream" opacity="0.8"/>
+                </g>
+
+                <g id="hydFlowGroup" opacity="0.16">
+                  <path d="M 526 129 L 526 146" fill="none" stroke="#f97316" stroke-width="2.4" class="hyd-stream" marker-end="url(#hydArr)"/>
+                  <path d="M 496 119 L 480 119 L 480 186 L 210 186 L 204 172" fill="none" stroke="#f97316" stroke-width="2.1" class="hyd-stream" marker-end="url(#hydArr)"/>
+                </g>
+
+                <path d="M 96 162 L 88 136 Q 86 115 112 102 L 160 89 Q 212 46 296 41 L 398 41 Q 466 48 510 89 L 592 104 Q 618 111 620 138 L 616 166 Q 612 176 592 176 L 570 176 A 44 44 0 0 0 482 176 L 228 176 A 44 44 0 0 0 140 176 L 112 176 Q 98 176 96 162 Z"
+                      fill="url(#bodyGlass)" stroke="#6884a6" stroke-width="1.8" stroke-linejoin="round"/>
+                <path d="M 180 92 Q 226 54 298 50 L 392 50 Q 450 55 486 92 Z"
+                      fill="rgba(255, 255, 255, 0.03)" stroke="#4c6482" stroke-width="1.2"/>
+                <line x1="336" y1="50" x2="328" y2="92" stroke="#4c6482" stroke-width="1.6"/>
+
+                <rect x="156" y="108" width="60" height="20" rx="3" fill="#13212e" stroke="#22c55e" stroke-width="1.3"/>
+                <text x="186" y="121.5" text-anchor="middle" font-size="9.5" font-weight="700" fill="#bbf7d0" font-family="Segoe UI, Roboto, Arial, sans-serif">SiC MCU</text>
+
+                <rect x="418" y="124" width="48" height="19" rx="3" fill="#141e2e" stroke="#38bdf8" stroke-width="1.2"/>
+                <text x="442" y="137" text-anchor="middle" font-size="9" font-weight="700" fill="#bae6fd" font-family="Segoe UI, Roboto, Arial, sans-serif">BMS A4</text>
+
+                <rect x="496" y="109" width="54" height="20" rx="3" fill="#241816" stroke="#f97316" stroke-width="1.3"/>
+                <text x="523" y="122.5" text-anchor="middle" font-size="9.5" font-weight="700" fill="#fed7aa" font-family="Segoe UI, Roboto, Arial, sans-serif">IEB A1</text>
+
+                <path id="stopLight" d="M 90 126 Q 112 120 142 109"
+                      fill="none" stroke="#ef4444" stroke-width="5" stroke-linecap="round" opacity="0.28"/>
+                <path d="M 568 112 L 612 121"
+                      fill="none" stroke="#38bdf8" stroke-width="3.2" stroke-linecap="round"/>
+
+                <g transform="translate(184, 172)">
+                  <circle cx="0" cy="0" r="32" fill="#0f131a" stroke="#4b607a" stroke-width="2"/>
+                  <circle cx="0" cy="0" r="21" fill="#161e2b" stroke="#2e3f57" stroke-width="1.2"/>
+                  <circle id="discRear" cx="0" cy="0" r="15" fill="#526580" opacity="0.45"/>
+                  <g id="wheelRear">
+                    <circle cx="0" cy="0" r="20" fill="none" stroke="#94aec9" stroke-width="1.8"/>
+                    <line x1="0" y1="-19" x2="0" y2="19" stroke="#9eb8d4" stroke-width="2.4"/>
+                    <line x1="-18" y1="-6" x2="18" y2="6" stroke="#9eb8d4" stroke-width="2.4"/>
+                    <line x1="-11" y1="15" x2="11" y2="-15" stroke="#9eb8d4" stroke-width="2"/>
+                    <circle cx="0" cy="0" r="4.5" fill="#1e293b" stroke="#38bdf8" stroke-width="1.4"/>
+                  </g>
+                  <rect id="caliperRear" x="12" y="-7" width="7" height="14" rx="2" fill="#475569" stroke="#94a3b8" stroke-width="1"/>
+                </g>
+
+                <g transform="translate(526, 172)">
+                  <circle cx="0" cy="0" r="32" fill="#0f131a" stroke="#4b607a" stroke-width="2"/>
+                  <circle cx="0" cy="0" r="21" fill="#161e2b" stroke="#2e3f57" stroke-width="1.2"/>
+                  <circle id="discFront" cx="0" cy="0" r="15" fill="#526580" opacity="0.45"/>
+                  <g id="wheelFront">
+                    <circle cx="0" cy="0" r="20" fill="none" stroke="#94aec9" stroke-width="1.8"/>
+                    <line x1="0" y1="-19" x2="0" y2="19" stroke="#9eb8d4" stroke-width="2.4"/>
+                    <line x1="-18" y1="-6" x2="18" y2="6" stroke="#9eb8d4" stroke-width="2.4"/>
+                    <line x1="-11" y1="15" x2="11" y2="-15" stroke="#9eb8d4" stroke-width="2"/>
+                    <circle cx="0" cy="0" r="4.5" fill="#1e293b" stroke="#38bdf8" stroke-width="1.4"/>
+                  </g>
+                  <rect id="caliperFront" x="-19" y="-7" width="7" height="14" rx="2" fill="#475569" stroke="#94a3b8" stroke-width="1"/>
+                </g>
+              </svg>
+            </div>
+
+            <div class="split-box">
+              <div class="split-labels num">
+                <span style="color:var(--regen);">Рекуперация (PMSM): <span id="pctRegen">100%</span></span>
+                <span style="color:var(--hyd);">Гидравлика (IEB): <span id="pctHyd">0%</span></span>
+              </div>
+              <div class="split-track">
+                <div id="barRegen" class="split-regen" style="width: 100%"></div>
+                <div id="barHyd" class="split-hyd" style="width: 0%"></div>
+              </div>
+            </div>
+
+            <div class="telemetry-strip">
+              <div class="tel-item">
+                <div class="tel-label">Мощность рекуперации</div>
+                <div id="outPower" class="tel-main green num">−46,0 кВт</div>
+                <div id="outCurrent" class="tel-extra num">Ток ВВБ: −62,4 А</div>
+              </div>
+              <div class="tel-item">
+                <div class="tel-label">Напряжение ВВБ (GB2)</div>
+                <div id="outVolt" class="tel-main blue num">742 В</div>
+                <div id="outTemp" class="tel-extra num">Температура: +24 °C</div>
+              </div>
+              <div class="tel-item">
+                <div class="tel-label">Момент PMSM</div>
+                <div id="outTorque" class="tel-main green num">−63 Н·м</div>
+                <div id="outDecel" class="tel-extra num">Замедление: 0,12 g</div>
+              </div>
+              <div class="tel-item">
+                <div class="tel-label">Давление IEB</div>
+                <div id="outPress" class="tel-main orange num">0,0 бар</div>
+                <div id="outEnergy" class="tel-extra num">Возврат до 0: 288 кДж</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="sim-controls-col no-swipe">
+            <div class="dial-section">
+              <svg id="speedDial" class="speed-dial-svg" viewBox="0 0 220 162" xmlns="http://www.w3.org/2000/svg" aria-label="Спидометр">
+                <path id="speedBgArc" d="" fill="none" stroke="#232c3d" stroke-width="11" stroke-linecap="round"/>
+                <g id="speedTicks"></g>
+                <path id="speedValArc" d="" fill="none" stroke="#38bdf8" stroke-width="11" stroke-linecap="round"/>
+                <circle id="speedKnob" cx="110" cy="24" r="7" fill="#ffffff" stroke="#38bdf8" stroke-width="2.5"/>
+                <text id="speedVal" x="110" y="102" text-anchor="middle" font-size="38" font-weight="700" fill="#ffffff" class="num" font-family="Segoe UI, Roboto, Arial, sans-serif">72</text>
+                <text x="110" y="122" text-anchor="middle" font-size="12" fill="#94a3b8" font-family="Segoe UI, Roboto, Arial, sans-serif">км/ч</text>
+              </svg>
+              <div class="speed-nudges">
+                <button type="button" class="nudge-btn num" onclick="stepSpeed(-10)">−10</button>
+                <button type="button" class="nudge-btn num" onclick="setSpeedDirect(0)">0</button>
+                <button type="button" class="nudge-btn num" onclick="stepSpeed(10)">+10</button>
+              </div>
+            </div>
+
+            <div class="ctrl-group">
+              <div class="ctrl-row-head">
+                <span>Педаль тормоза</span>
+                <span style="font-size:11.5px;color:var(--text-mute);">Педаль или ползунок</span>
+              </div>
+              <div id="brakePedalBox" class="pedal-box" title="Нажмите и двигайте мышь слева направо для нажатия педали">
+                <svg id="brakePedalSvg" class="pedal-svg" viewBox="0 0 260 112" xmlns="http://www.w3.org/2000/svg" aria-label="Педаль тормоза">
+                  <line x1="16" y1="10" x2="246" y2="10" stroke="#334155" stroke-width="2"/>
+                  <path d="M 74 10 L 74 28 Q 74 36 86 36 L 98 36 Q 110 36 110 28 L 110 10 Z" fill="#1b2433" stroke="#475569" stroke-width="1.3"/>
+                  <line x1="168" y1="10" x2="168" y2="106" stroke="#2d3a4f" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+                  <rect x="174" y="38" width="72" height="34" rx="5" fill="#141c28" stroke="#4b607a" stroke-width="1.4"/>
+                  <rect id="pedalHydGlow" x="208" y="42" width="34" height="26" rx="2" fill="#38bdf8" opacity="0.22"/>
+                  <text x="210" y="32" text-anchor="middle" font-size="8.5" font-weight="600" fill="#94a3b8" font-family="Segoe UI, Arial, sans-serif">Цилиндр IEB</text>
+
+                  <rect id="pedalPiston" x="180" y="43" width="14" height="24" rx="2" fill="#38bdf8" stroke="#bae6fd" stroke-width="1"/>
+                  <line id="pedalRod" x1="78" y1="55" x2="180" y2="55" stroke="#94a3b8" stroke-width="3.2" stroke-linecap="round"/>
+
+                  <path d="M 48 97 Q 90 105 134 96" fill="none" stroke="#334155" stroke-width="1.3" stroke-dasharray="3,3"/>
+                  <polygon points="136,95 129,92 130,99" fill="#38bdf8"/>
+
+                  <g id="pedalArmGroup" transform="rotate(0, 92, 22)">
+                    <path d="M 88 22 L 96 22 L 86 58 L 68 92 L 58 88 L 76 54 Z" fill="rgba(56, 189, 248, 0.16)" stroke="#38bdf8" stroke-width="1.6" stroke-linejoin="round"/>
+                    <rect x="49" y="83" width="23" height="9" rx="3" transform="rotate(24, 60, 88)" fill="#1e293b" stroke="#e2e8f0" stroke-width="1.6"/>
+                    <circle cx="78" cy="55" r="3.6" fill="#121720" stroke="#e2e8f0" stroke-width="1.4"/>
+                  </g>
+
+                  <circle cx="92" cy="22" r="5.5" fill="#121720" stroke="#38bdf8" stroke-width="1.8"/>
+                  <circle cx="92" cy="22" r="2" fill="#e2e8f0"/>
+                </svg>
+
+                <div class="pedal-readout">
+                  <span>Уровень нажатия</span>
+                  <b id="vBrake" class="num">35%</b>
+                </div>
+              </div>
+              <div class="pedal-slider-wrap">
+                <input id="brakeSlider" type="range" min="0" max="100" value="35" class="pedal-slider"
+                       aria-label="Уровень нажатия педали тормоза" oninput="onBrakeSlider(this.value)">
+              </div>
+            </div>
+
+            <div class="ctrl-group">
+              <div class="ctrl-row-head">
+                <span>Уровень рекуперации</span>
+                <b id="vPaddleTxt" style="color:var(--accent);">Ур. 2</b>
+              </div>
+              <div id="paddleLevels" class="paddle-bar">
+                <button type="button" class="p-btn num" data-lvl="0" onclick="setPaddle(0)">0</button>
+                <button type="button" class="p-btn num" data-lvl="1" onclick="setPaddle(1)">1</button>
+                <button type="button" class="p-btn num on" data-lvl="2" onclick="setPaddle(2)">2</button>
+                <button type="button" class="p-btn num" data-lvl="3" onclick="setPaddle(3)">3</button>
+                <button type="button" class="p-btn ip" data-lvl="4" onclick="setPaddle(4)">i-P</button>
+              </div>
+            </div>
+
+            <div class="ctrl-group">
+              <div class="ctrl-row-head">
+                <span>Заряд ВВБ</span>
+                <b id="vSoc" class="num" style="color:var(--regen);">65%</b>
+              </div>
+              <div id="socBar" class="seg-bar" title="Нажмите или проведите для изменения заряда батареи"></div>
+              <div class="temp-switch">
+                <button type="button" id="btnTempNorm" class="t-btn active-norm num" onclick="setColdMode(false)">+24 °C (Норма)</button>
+                <button type="button" id="btnTempCold" class="t-btn num" onclick="setColdMode(true)">−15 °C (Мороз)</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- СЛАЙД 4: СРАВНЕНИЕ 400 В vs 800 В -->
+      <section class="slide hidden" data-slide="4">
+        <div class="slide-header">
+          <div>
+            <h2 class="slide-title">Энергетический расчёт: 400 В и 800 В</h2>
+            <p class="slide-subtitle">Активное сопротивление силового тракта R<sub>Σ</sub> = 0,08 Ом</p>
+          </div>
+          <div class="preset-row">
+            <button type="button" class="pill-btn pwr-btn num" onclick="setCalcPower(50, this)">50 кВт</button>
+            <button type="button" class="pill-btn pwr-btn num" onclick="setCalcPower(100, this)">100 кВт</button>
+            <button type="button" class="pill-btn pwr-btn active num" onclick="setCalcPower(150, this)">150 кВт</button>
+            <button type="button" class="pill-btn pwr-btn num" onclick="setCalcPower(200, this)">200 кВт</button>
+          </div>
+        </div>
+
+        <div class="calc-table-box">
+          <table class="cmp-table">
+            <thead>
+              <tr>
+                <th>Показатель</th>
+                <th class="col-val">400 В (Si-IGBT)</th>
+                <th class="col-val col-800">800 В (Kia EV6)</th>
+                <th class="col-note">Результат</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Ток силовой шины (<i>I</i> = <i>P</i> / <i>U</i>)</td>
+                <td id="c400I" class="col-val num"><b>375,0 А</b></td>
+                <td id="c800I" class="col-val col-800 num" style="color:var(--accent);"><b>187,5 А</b></td>
+                <td class="col-note">Снижение тока в <b>2 раза</b></td>
+              </tr>
+              <tr>
+                <td>Тепловые потери (<i>I</i><sup>2</sup>·<i>R</i><sub>Σ</sub>)</td>
+                <td id="c400Loss" class="col-val num" style="color:var(--danger);"><b>11,25 кВт</b></td>
+                <td id="c800Loss" class="col-val col-800 num" style="color:var(--regen);"><b>2,81 кВт</b></td>
+                <td class="col-note">Снижение потерь в <b>4 раза</b></td>
+              </tr>
+              <tr>
+                <td>КПД инвертора в городе</td>
+                <td class="col-val num">93–94%</td>
+                <td class="col-val col-800 num"><b>97–98%</b></td>
+                <td class="col-note">Карбид кремния (SiC-MOSFET)</td>
+              </tr>
+              <tr>
+                <td>Сечение высоковольтных жгутов</td>
+                <td class="col-val">Увеличенное</td>
+                <td class="col-val col-800">Облегчённое</td>
+                <td class="col-note">Меньше меди и нагрева</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="calc-bottom-grid">
+          <div class="calc-card">
+            <div class="calc-card-title">Тепловые потери в силовых цепях</div>
+            <div class="bar-row">
+              <div class="bar-head num">
+                <span>Система 400 В (Si-IGBT)</span>
+                <b id="c400BarTxt" style="color:var(--danger);">11,25 кВт</b>
+              </div>
+              <div class="bar-track"><div id="c400Bar" class="bar-fill-400" style="width: 56%;"></div></div>
+            </div>
+            <div class="bar-row">
+              <div class="bar-head num">
+                <span>Система 800 В Kia EV6 (SiC-MOSFET)</span>
+                <b id="c800BarTxt" style="color:var(--regen);">2,81 кВт</b>
+              </div>
+              <div class="bar-track"><div id="c800Bar" class="bar-fill-800" style="width: 14%;"></div></div>
+            </div>
+          </div>
+
+          <div class="calc-card">
+            <div class="calc-card-title">Городской цикл (2000 кг, 72 → 0 км/ч)</div>
+            <ul class="city-list num">
+              <li>Кинетическая энергия: <b>400 кДж</b></li>
+              <li>КПД тракта <i>η</i><sub>рек</sub> ≈ <b>72%</b> → возврат <b>288 кДж</b></li>
+              <li>50 торможений на 100 км: <b>4,0 кВт·ч</b> (до <b>22%</b>)</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- МОБИЛЬНАЯ НИЖНЯЯ НАВИГАЦИЯ -->
+    <nav class="mobile-nav" aria-label="Слайды">
+      <button type="button" class="m-tab active" data-tab="1" onclick="goToSlide(1)">Титул</button>
+      <button type="button" class="m-tab" data-tab="2" onclick="goToSlide(2)">Схема</button>
+      <button type="button" class="m-tab" data-tab="3" onclick="goToSlide(3)">Эмулятор</button>
+      <button type="button" class="m-tab" data-tab="4" onclick="goToSlide(4)">Расчёт</button>
+    </nav>
+  </div>
+
+  <!-- Полноэкранный просмотр реального чертежа -->
+  <div id="schemeModal" class="scheme-modal hidden" onclick="if (event.target === this) closeSchemeModal()">
+    <div class="scheme-modal-bar">
+      <span>Принципиальная электрическая схема тормозной системы</span>
+      <div class="scheme-modal-tools">
+        <button type="button" class="modal-tool-btn" onclick="zoomScheme(-0.25)" title="Уменьшить">−</button>
+        <span id="schemeZoomLabel" class="modal-zoom-val num">100%</span>
+        <button type="button" class="modal-tool-btn" onclick="zoomScheme(0.25)" title="Увеличить">+</button>
+        <button type="button" class="modal-tool-btn" onclick="setSchemeFit()">По экрану</button>
+        <button type="button" class="modal-tool-btn" onclick="setSchemeNative()">1:1</button>
+        <button type="button" class="scheme-modal-close" onclick="closeSchemeModal()">Закрыть ✕</button>
+      </div>
+    </div>
+    <div id="schemeViewport" class="scheme-modal-viewport">
+      <div class="scheme-modal-canvas">
+        <img id="schemeModalImg" src="" alt="Чертёж в полном размере" draggable="false" oncontextmenu="return false;">
+      </div>
+    </div>
+    <div class="scheme-modal-hint">Колёсико мыши или «+ / −» — масштаб · Зажмите и тяните — перемещение по чертежу</div>
+  </div>
+
+  <script>
+    const TOTAL_SLIDES = 4;
+    let currentSlide = 1;
+
+    function goToSlide(n) {
+      currentSlide = Math.max(1, Math.min(TOTAL_SLIDES, n));
+      document.querySelectorAll('.slide').forEach(function (sec) {
+        const idx = parseInt(sec.getAttribute('data-slide'), 10);
+        sec.classList.toggle('hidden', idx !== currentSlide);
+      });
+
+      const mNum = document.getElementById('mobileSlideNum');
+      if (mNum) mNum.textContent = currentSlide + ' / ' + TOTAL_SLIDES;
+
+      const dPrev = document.getElementById('deskPrev');
+      const dNext = document.getElementById('deskNext');
+      if (dPrev) dPrev.disabled = (currentSlide === 1);
+      if (dNext) dNext.disabled = (currentSlide === TOTAL_SLIDES);
+
+      document.querySelectorAll('[data-tab]').forEach(function (btn) {
+        const isCur = parseInt(btn.getAttribute('data-tab'), 10) === currentSlide;
+        btn.classList.toggle('active', isCur);
+      });
+
+      try {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } catch (e) {
+        window.scrollTo(0, 0);
+      }
+      const ws = document.getElementById('stage');
+      if (ws) ws.scrollTop = 0;
+    }
+
+    function changeSlide(delta) {
+      goToSlide(currentSlide + delta);
+    }
+
+    document.addEventListener('keydown', function (e) {
+      const modal = document.getElementById('schemeModal');
+      const modalOpen = modal && !modal.classList.contains('hidden');
+      if (e.key === 'Escape') {
+        closeSchemeModal();
+        return;
+      }
+      if (modalOpen) {
+        if (e.key === '+' || e.key === '=') { e.preventDefault(); zoomScheme(0.25); }
+        else if (e.key === '-' || e.key === '_') { e.preventDefault(); zoomScheme(-0.25); }
+        else if (e.key === '0') { e.preventDefault(); setSchemeFit(); }
+        return;
+      }
+      if (e.key === 'ArrowRight' || e.key === 'PageDown') {
+        e.preventDefault();
+        changeSlide(1);
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        e.preventDefault();
+        changeSlide(-1);
+      }
+    });
+
+    let schemeZoom = 1;
+    let schemeMinZoom = 0.2;
+    let schemeNatW = 0;
+    let schemeNatH = 0;
+
+    function showSchemeFallback() {
+      const img = document.getElementById('realSchemeImg');
+      const fb = document.getElementById('realSchemeFallback');
+      const box = document.getElementById('realSchemeBox');
+      const btn = document.getElementById('cadZoomBtn');
+      if (img) img.classList.add('hidden');
+      if (fb) fb.classList.remove('hidden');
+      if (box) box.classList.add('is-empty');
+      if (btn) btn.classList.add('hidden');
+    }
+
+    function initSchemeImage() {
+      const img = document.getElementById('realSchemeImg');
+      if (!img) return;
+      img.dataset.step = 'png';
+
+      function tryNextFormat() {
+        const step = img.dataset.step || 'png';
+        if (step === 'png') {
+          img.dataset.step = 'jpg';
+          img.src = 'scheme.jpg';
+        } else if (step === 'jpg') {
+          img.dataset.step = 'jpeg';
+          img.src = 'scheme.jpeg';
+        } else {
+          showSchemeFallback();
+        }
+      }
+
+      img.addEventListener('error', tryNextFormat);
+      if (img.complete && img.naturalWidth === 0) {
+        tryNextFormat();
+      }
+    }
+
+    function loadLocalScheme(event) {
+      const file = event && event.target && event.target.files && event.target.files[0];
+      if (!file) return;
+      const img = document.getElementById('realSchemeImg');
+      const fb = document.getElementById('realSchemeFallback');
+      const box = document.getElementById('realSchemeBox');
+      const btn = document.getElementById('cadZoomBtn');
+      if (!img) return;
+      img.dataset.step = 'custom';
+      img.src = URL.createObjectURL(file);
+      img.classList.remove('hidden');
+      if (fb) fb.classList.add('hidden');
+      if (box) box.classList.remove('is-empty');
+      if (btn) btn.classList.remove('hidden');
+    }
+
+    function applySchemeZoom(newZoom, focusClientX, focusClientY) {
+      if (!schemeNatW || !schemeNatH) return;
+      const vp = document.getElementById('schemeViewport');
+      const modalImg = document.getElementById('schemeModalImg');
+      const lbl = document.getElementById('schemeZoomLabel');
+      if (!vp || !modalImg) return;
+
+      const clamped = Math.max(schemeMinZoom, Math.min(4, newZoom));
+      const oldZoom = schemeZoom || clamped;
+
+      const rect = vp.getBoundingClientRect();
+      const fx = (focusClientX != null) ? (focusClientX - rect.left) : (vp.clientWidth / 2);
+      const fy = (focusClientY != null) ? (focusClientY - rect.top) : (vp.clientHeight / 2);
+
+      const contentX = vp.scrollLeft + fx;
+      const contentY = vp.scrollTop + fy;
+
+      schemeZoom = clamped;
+      modalImg.style.width = Math.round(schemeNatW * schemeZoom) + 'px';
+      modalImg.style.height = Math.round(schemeNatH * schemeZoom) + 'px';
+      if (lbl) lbl.textContent = Math.round(schemeZoom * 100) + '%';
+
+      const ratio = schemeZoom / oldZoom;
+      vp.scrollLeft = Math.max(0, Math.round(contentX * ratio - fx));
+      vp.scrollTop  = Math.max(0, Math.round(contentY * ratio - fy));
+    }
+
+    function zoomScheme(delta, clientX, clientY) {
+      const step = schemeZoom >= 1.5 ? delta * 1.5 : delta;
+      applySchemeZoom(schemeZoom + step, clientX, clientY);
+    }
+
+    function setSchemeFit() {
+      if (!schemeNatW || !schemeNatH) return;
+      const vp = document.getElementById('schemeViewport');
+      if (!vp) return;
+      const availW = Math.max(200, vp.clientWidth - 28);
+      const availH = Math.max(200, vp.clientHeight - 28);
+      const fit = Math.min(availW / schemeNatW, availH / schemeNatH);
+      schemeMinZoom = Math.min(0.2, fit * 0.6);
+      applySchemeZoom(Math.min(1, fit));
+      vp.scrollLeft = 0;
+      vp.scrollTop = 0;
+    }
+
+    function setSchemeNative() {
+      if (!schemeNatW || !schemeNatH) return;
+      applySchemeZoom(1);
+    }
+
+    function openSchemeModal() {
+      const img = document.getElementById('realSchemeImg');
+      const modal = document.getElementById('schemeModal');
+      const modalImg = document.getElementById('schemeModalImg');
+      if (!img || !modal || !modalImg || img.classList.contains('hidden')) return;
+
+      modal.classList.remove('hidden');
+
+      function initSizing() {
+        schemeNatW = modalImg.naturalWidth || img.naturalWidth || 1200;
+        schemeNatH = modalImg.naturalHeight || img.naturalHeight || 850;
+        requestAnimationFrame(function () { setSchemeFit(); });
+      }
+
+      if (modalImg.src !== img.src) {
+        modalImg.onload = initSizing;
+        modalImg.src = img.src;
+      } else if (modalImg.complete && modalImg.naturalWidth > 0) {
+        initSizing();
+      } else {
+        modalImg.onload = initSizing;
+      }
+    }
+
+    function closeSchemeModal() {
+      const modal = document.getElementById('schemeModal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function bindSchemeViewerInteraction() {
+      const vp = document.getElementById('schemeViewport');
+      if (!vp) return;
+      let panning = false;
+      let startX = 0, startY = 0, startScrollL = 0, startScrollT = 0;
+
+      vp.addEventListener('wheel', function (e) {
+        e.preventDefault();
+        const dir = e.deltaY < 0 ? 0.2 : -0.2;
+        zoomScheme(dir, e.clientX, e.clientY);
+      }, { passive: false });
+
+      vp.addEventListener('pointerdown', function (e) {
+        if (e.pointerType === 'touch') return;
+        panning = true;
+        vp.classList.add('dragging');
+        try { vp.setPointerCapture(e.pointerId); } catch (err) {}
+        startX = e.clientX;
+        startY = e.clientY;
+        startScrollL = vp.scrollLeft;
+        startScrollT = vp.scrollTop;
+      });
+
+      vp.addEventListener('pointermove', function (e) {
+        if (!panning) return;
+        vp.scrollLeft = startScrollL - (e.clientX - startX);
+        vp.scrollTop  = startScrollT - (e.clientY - startY);
+      });
+
+      function stopPan() {
+        panning = false;
+        vp.classList.remove('dragging');
+      }
+      vp.addEventListener('pointerup', stopPan);
+      vp.addEventListener('pointercancel', stopPan);
+    }
+
+    function bindSwipeNavigation() {
+      const stageEl = document.getElementById('stage');
+      if (!stageEl) return;
+      let touchStartX = 0, touchStartY = 0, touchIgnored = false;
+
+      stageEl.addEventListener('touchstart', function (e) {
+        if (e.target && e.target.closest && e.target.closest('.no-swipe, button')) {
+          touchIgnored = true;
+          return;
+        }
+        touchIgnored = false;
+        touchStartX = e.changedTouches[0].clientX;
+        touchStartY = e.changedTouches[0].clientY;
+      }, { passive: true });
+
+      stageEl.addEventListener('touchend', function (e) {
+        if (touchIgnored) return;
+        const dx = e.changedTouches[0].clientX - touchStartX;
+        const dy = e.changedTouches[0].clientY - touchStartY;
+        if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.4) {
+          if (dx < 0) changeSlide(1);
+          else changeSlide(-1);
+        }
+      }, { passive: true });
+    }
+
+    const NODES = {
+      pmsm: {
+        group: 'Контур 800 В',
+        title: 'Электродвигатель PMSM',
+        points: [
+          'Синхронный двигатель с постоянными магнитами в режиме генератора.',
+          'Передаточное число редуктора i = 10,65, КПД около 93%.',
+          'На скорости ниже 5–7 км/ч остановку завершают тормозные колодки.'
+        ]
+      },
+      mcu: {
+        group: 'Силовая электроника',
+        title: 'Инвертор MCU (SiC-MOSFET)',
+        points: [
+          'Двунаправленный активный выпрямитель (3~ AC → 800 В DC).',
+          'Карбид кремния (SiC) обеспечивает КПД 97–98% в городе.',
+          'Задаёт тормозной момент по командам шины CAN.'
+        ]
+      },
+      bms: {
+        group: 'Управление ВВБ',
+        title: 'Блок A4 (BDU / BMS)',
+        points: [
+          'Управляет высоковольтными контакторами (BDU).',
+          'Ограничивает ток заряда при уровне выше 90% и на морозе.',
+          'Передаёт допустимую мощность рекуперации бустеру A1 по CAN.'
+        ]
+      },
+      gb2: {
+        group: 'Накопитель энергии',
+        title: 'Тяговая ВВБ GB2 (800 В)',
+        points: [
+          'Рабочий диапазон 660–803 В (около 742 В при заряде 65%).',
+          'Принимает импульсы до 175 кВт (~288 кДж при торможении с 72 км/ч).',
+          'Тепловые потери в 4 раза ниже, чем у батарей 400 В.'
+        ]
+      },
+      ieb: {
+        group: 'Тормозной привод',
+        title: 'Бустер A1 (IEB) и суппорты',
+        points: [
+          'Электрогидравлический блок с датчиком хода педали тормоза.',
+          'Плавно дожимает колодками при морозе, заряде 98% и > 0,35 g.',
+          'Сохраняет механический аварийный контур при потере питания.'
+        ]
+      },
+      ldc: {
+        group: 'Сеть 12 В',
+        title: 'DC-DC преобразователь LDC (U2)',
+        points: [
+          'Понижает 800 В до 12–14 В с гальванической развязкой.',
+          'Силовые ключи VT20, VT21 и импульсный трансформатор T1.',
+          'Выходной фильтр: диоды VD16, VD17, дроссель L1, C5, C6.'
+        ]
+      },
+      ibs: {
+        group: 'Контроль бортсети',
+        title: 'АКБ GB1 (12 В) и датчик IBS',
+        points: [
+          'Резервное питание электроники тормозов при отключении 800 В.',
+          'Токовый шунт R37, термодатчик, АЦП и микропроцессор.',
+          'Передача данных состояния АКБ по шине LIN.'
+        ]
+      },
+      obd: {
+        group: 'Индикация и сервис',
+        title: 'Приборы A5, LCD и XS4 (OBD-II)',
+        points: [
+          'Связь с электронными блоками по шине CAN-H / CAN-L.',
+          'Индикаторы HL1–HL3 и дисплей по шине I2C (SCL, SDA).',
+          '16-контактный диагностический разъём XS4 (OBD-II).'
+        ]
+      }
+    };
+
+    function selectNode(key) {
+      const n = NODES[key];
+      const card = document.getElementById('nodeCard');
+      if (!n || !card) return;
+      document.querySelectorAll('.svg-node').forEach(function (el) {
+        el.classList.toggle('active', el.getAttribute('data-node') === key);
+      });
+      card.innerHTML =
+        '<div class="node-group">' + n.group + '</div>' +
+        '<h3>' + n.title + '</h3>' +
+        '<ul>' + n.points.map(function (p) { return '<li>' + p + '</li>'; }).join('') + '</ul>';
+    }
+
+    const sim = {
+      speed: 72,
+      brake: 35,
+      soc: 65,
+      level: 2,
+      isCold: false
+    };
+
+    const DIAL_CX = 110, DIAL_CY = 100, DIAL_R = 76;
+    const START_DEG = 150, SWEEP_DEG = 240;
+
+    function polarToXY(cx, cy, r, deg) {
+      const rad = (deg * Math.PI) / 180;
+      return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+    }
+
+    function describeArc(cx, cy, r, startDeg, endDeg) {
+      const s = polarToXY(cx, cy, r, startDeg);
+      const e = polarToXY(cx, cy, r, endDeg);
+      const largeArc = (endDeg - startDeg) > 180 ? 1 : 0;
+      return 'M ' + s.x.toFixed(1) + ' ' + s.y.toFixed(1) + ' A ' + r + ' ' + r + ' 0 ' + largeArc + ' 1 ' + e.x.toFixed(1) + ' ' + e.y.toFixed(1);
+    }
+
+    function buildSpeedDialStatic() {
+      const bgArc = document.getElementById('speedBgArc');
+      const ticksG = document.getElementById('speedTicks');
+      if (!bgArc || !ticksG) return;
+      bgArc.setAttribute('d', describeArc(DIAL_CX, DIAL_CY, DIAL_R, START_DEG, START_DEG + SWEEP_DEG));
+      ticksG.innerHTML = '';
+      for (let v = 0; v <= 140; v += 20) {
+        const deg = START_DEG + (v / 140) * SWEEP_DEG;
+        const p1 = polarToXY(DIAL_CX, DIAL_CY, DIAL_R - 11, deg);
+        const p2 = polarToXY(DIAL_CX, DIAL_CY, DIAL_R - 17, deg);
+        const pt = polarToXY(DIAL_CX, DIAL_CY, DIAL_R - 27, deg);
+
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', p1.x.toFixed(1));
+        line.setAttribute('y1', p1.y.toFixed(1));
+        line.setAttribute('x2', p2.x.toFixed(1));
+        line.setAttribute('y2', p2.y.toFixed(1));
+        line.setAttribute('stroke', '#475569');
+        line.setAttribute('stroke-width', '1.5');
+        ticksG.appendChild(line);
+
+        const txt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        txt.setAttribute('x', pt.x.toFixed(1));
+        txt.setAttribute('y', (pt.y + 3).toFixed(1));
+        txt.setAttribute('text-anchor', 'middle');
+        txt.setAttribute('font-size', '9.5');
+        txt.setAttribute('fill', '#64748b');
+        txt.setAttribute('font-family', 'Segoe UI, Roboto, Arial, sans-serif');
+        txt.textContent = String(v);
+        ticksG.appendChild(txt);
+      }
+    }
+
+    function buildSegmentedBars() {
+      const sBar = document.getElementById('socBar');
+      if (sBar) {
+        sBar.innerHTML = '';
+        for (let i = 0; i < 20; i++) {
+          const d2 = document.createElement('div');
+          d2.className = 'seg';
+          sBar.appendChild(d2);
+        }
+      }
+
+      const modG = document.getElementById('battModulesGroup');
+      if (modG) {
+        modG.innerHTML = '';
+        for (let i = 0; i < 12; i++) {
+          const r = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+          r.setAttribute('x', String(233 + i * 20));
+          r.setAttribute('y', '156');
+          r.setAttribute('width', '16');
+          r.setAttribute('height', '16');
+          r.setAttribute('rx', '2');
+          r.setAttribute('fill', '#1c2636');
+          r.setAttribute('class', 'batt-cell');
+          modG.appendChild(r);
+        }
+      }
+    }
+
+    function bindDialInteraction() {
+      const svg = document.getElementById('speedDial');
+      if (!svg) return;
+      let dragging = false;
+
+      function applyPoint(e) {
+        const rect = svg.getBoundingClientRect();
+        const x = ((e.clientX - rect.left) / rect.width) * 220;
+        const y = ((e.clientY - rect.top) / rect.height) * 162;
+        let deg = (Math.atan2(y - DIAL_CY, x - DIAL_CX) * 180) / Math.PI;
+        if (deg < 90) deg += 360;
+        const clamped = Math.max(START_DEG, Math.min(START_DEG + SWEEP_DEG, deg));
+        const pct = (clamped - START_DEG) / SWEEP_DEG;
+        sim.speed = Math.round(pct * 140);
+        clearPresetHighlight();
+        updateSim();
+      }
+
+      svg.addEventListener('pointerdown', function (e) {
+        dragging = true;
+        try { svg.setPointerCapture(e.pointerId); } catch (err) {}
+        applyPoint(e);
+      });
+      svg.addEventListener('pointermove', function (e) { if (dragging) applyPoint(e); });
+      svg.addEventListener('pointerup', function () { dragging = false; });
+      svg.addEventListener('pointercancel', function () { dragging = false; });
+    }
+
+    function bindBarInteraction(elId, minVal, maxVal, setter) {
+      const el = document.getElementById(elId);
+      if (!el) return;
+      let dragging = false;
+
+      function applyX(e) {
+        const rect = el.getBoundingClientRect();
+        const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+        setter(Math.round(minVal + ratio * (maxVal - minVal)));
+        clearPresetHighlight();
+        updateSim();
+      }
+
+      el.addEventListener('pointerdown', function (e) {
+        dragging = true;
+        try { el.setPointerCapture(e.pointerId); } catch (err) {}
+        applyX(e);
+      });
+      el.addEventListener('pointermove', function (e) { if (dragging) applyX(e); });
+      el.addEventListener('pointerup', function () { dragging = false; });
+      el.addEventListener('pointercancel', function () { dragging = false; });
+    }
+
+    function bindPedalInteraction() {
+      const box = document.getElementById('brakePedalBox');
+      if (!box) return;
+      let dragging = false;
+
+      function applyPedalX(e) {
+        const rect = box.getBoundingClientRect();
+        const raw = (e.clientX - rect.left) / rect.width;
+        const norm = (raw - 0.14) / 0.68;
+        sim.brake = Math.max(0, Math.min(100, Math.round(norm * 100)));
+        clearPresetHighlight();
+        updateSim();
+      }
+
+      box.addEventListener('pointerdown', function (e) {
+        dragging = true;
+        try { box.setPointerCapture(e.pointerId); } catch (err) {}
+        applyPedalX(e);
+      });
+      box.addEventListener('pointermove', function (e) { if (dragging) applyPedalX(e); });
+      box.addEventListener('pointerup', function () { dragging = false; });
+      box.addEventListener('pointercancel', function () { dragging = false; });
+    }
+
+    function stepSpeed(delta) {
+      sim.speed = Math.max(0, Math.min(140, sim.speed + delta));
+      clearPresetHighlight();
+      updateSim();
+    }
+
+    function setSpeedDirect(val) {
+      sim.speed = val;
+      clearPresetHighlight();
+      updateSim();
+    }
+
+    function onBrakeSlider(val) {
+      sim.brake = Math.max(0, Math.min(100, parseInt(val, 10) || 0));
+      clearPresetHighlight();
+      updateSim();
+    }
+
+    function setPaddle(lvl) {
+      sim.level = Math.max(0, Math.min(4, lvl));
+      clearPresetHighlight();
+      updateSim();
+    }
+
+    function setColdMode(cold) {
+      sim.isCold = cold;
+      clearPresetHighlight();
+      updateSim();
+    }
+
+    function clearPresetHighlight() {
+      document.querySelectorAll('#presetBar .pill-btn').forEach(function (b) {
+        b.classList.remove('active');
+      });
+    }
+
+    function applyPreset(mode, btn) {
+      clearPresetHighlight();
+      if (btn) btn.classList.add('active');
+
+      if (mode === 'city') {
+        sim.speed = 72; sim.brake = 35; sim.soc = 65; sim.level = 2; sim.isCold = false;
+      } else if (mode === 'coast') {
+        sim.speed = 72; sim.brake = 0; sim.soc = 65; sim.level = 0; sim.isCold = false;
+      } else if (mode === 'cold') {
+        sim.speed = 72; sim.brake = 40; sim.soc = 60; sim.level = 2; sim.isCold = true;
+      } else if (mode === 'full') {
+        sim.speed = 72; sim.brake = 40; sim.soc = 98; sim.level = 2; sim.isCold = false;
+      } else if (mode === 'panic') {
+        sim.speed = 110; sim.brake = 95; sim.soc = 65; sim.level = 3; sim.isCold = false;
+      }
+      updateSim();
+    }
+
+    function fmt(val, digits) {
+      return val.toFixed(digits).replace('.', ',');
+    }
+
+    function updateSim() {
+      const speed = sim.speed;
+      const brake = sim.brake;
+      const soc = sim.soc;
+      const level = sim.level;
+      const isCold = sim.isCold;
+
+      document.getElementById('speedVal').textContent = String(speed);
+      const endDeg = START_DEG + (speed / 140) * SWEEP_DEG;
+      const valArc = document.getElementById('speedValArc');
+      if (speed > 0) {
+        valArc.setAttribute('d', describeArc(DIAL_CX, DIAL_CY, DIAL_R, START_DEG, endDeg));
+      } else {
+        valArc.setAttribute('d', '');
+      }
+      const knobPos = polarToXY(DIAL_CX, DIAL_CY, DIAL_R, endDeg);
+      document.getElementById('speedKnob').setAttribute('cx', knobPos.x.toFixed(1));
+      document.getElementById('speedKnob').setAttribute('cy', knobPos.y.toFixed(1));
+
+      const vBrakeEl = document.getElementById('vBrake');
+      vBrakeEl.textContent = brake + '%';
+      const pedalColor = brake >= 75 ? '#ef4444' : (brake >= 40 ? '#f97316' : '#38bdf8');
+      vBrakeEl.style.color = brake > 0 ? pedalColor : '#94a3b8';
+
+      const brakeSliderEl = document.getElementById('brakeSlider');
+      if (brakeSliderEl) {
+        brakeSliderEl.value = String(brake);
+        brakeSliderEl.style.background = 'linear-gradient(90deg, ' + pedalColor + ' 0%, ' + pedalColor + ' ' + brake + '%, #232c3d ' + brake + '%, #232c3d 100%)';
+      }
+
+      const rotDeg = (brake / 100) * 44;
+      document.getElementById('pedalArmGroup').setAttribute('transform', 'rotate(' + (-rotDeg).toFixed(1) + ', 92, 22)');
+
+      const rad = (-rotDeg * Math.PI) / 180;
+      const pinX = 92 + (-14) * Math.cos(rad) - 33 * Math.sin(rad);
+      const pinY = 22 + (-14) * Math.sin(rad) + 33 * Math.cos(rad);
+      const stroke = Math.max(0, pinX - 78);
+      const pistonX = 180 + stroke * 1.15;
+
+      const rodEl = document.getElementById('pedalRod');
+      rodEl.setAttribute('x1', pinX.toFixed(1));
+      rodEl.setAttribute('y1', pinY.toFixed(1));
+      rodEl.setAttribute('x2', pistonX.toFixed(1));
+      rodEl.setAttribute('y2', '55');
+
+      const pistonEl = document.getElementById('pedalPiston');
+      pistonEl.setAttribute('x', pistonX.toFixed(1));
+      pistonEl.setAttribute('fill', pedalColor);
+
+      const glowEl = document.getElementById('pedalHydGlow');
+      const glowX = pistonX + 14;
+      const glowW = Math.max(6, 242 - glowX);
+      glowEl.setAttribute('x', glowX.toFixed(1));
+      glowEl.setAttribute('width', glowW.toFixed(1));
+      glowEl.setAttribute('fill', pedalColor);
+      glowEl.setAttribute('opacity', (0.14 + (brake / 100) * 0.58).toFixed(2));
+
+      const lvlNames = ['Ур. 0 (выкл.)', 'Ур. 1', 'Ур. 2', 'Ур. 3', 'i-Pedal'];
+      document.getElementById('vPaddleTxt').textContent = lvlNames[level];
+      document.querySelectorAll('#paddleLevels .p-btn').forEach(function (el) {
+        el.classList.toggle('on', parseInt(el.getAttribute('data-lvl'), 10) === level);
+      });
+
+      document.getElementById('vSoc').textContent = soc + '%';
+      const sCells = document.getElementById('socBar').children;
+      const sLit = Math.round((soc / 100) * sCells.length);
+      const socColor = isCold ? '#60a5fa' : (soc > 92 ? '#eab308' : '#22c55e');
+      for (let i = 0; i < sCells.length; i++) {
+        sCells[i].style.background = i < sLit ? socColor : '#232c3d';
+      }
+      document.getElementById('btnTempNorm').className = !isCold ? 't-btn active-norm num' : 't-btn num';
+      document.getElementById('btnTempCold').className = isCold ? 't-btn active-cold num' : 't-btn num';
+
+      const levelKwMap = [0, 14, 28, 46, 65];
+      const vMs = speed / 3.6;
+      const speedFactor = Math.min(1, speed / 30);
+
+      let demandKw = 0;
+      if (speed > 0) {
+        const paddleKw = levelKwMap[level] * speedFactor;
+        const pedalKw  = Math.pow(brake / 100, 1.35) * 285 * (speed / 72);
+        demandKw = Math.max(paddleKw, pedalKw);
+      }
+
+      let bmsLimitKw = 175;
+      let limitReason = 'ok';
+
+      if (level === 0) {
+        bmsLimitKw = 0;
+        limitReason = 'regenOff';
+      } else {
+        if (soc >= 95) {
+          bmsLimitKw = Math.max(0, (100 - soc) * 4);
+          limitReason = 'fullSoc';
+        } else if (soc > 90) {
+          bmsLimitKw = 175 * ((96 - soc) / 6);
+          limitReason = 'fullSoc';
+        }
+        if (isCold) {
+          bmsLimitKw = Math.min(bmsLimitKw, 22);
+          limitReason = 'cold';
+        }
+        if (speed < 7 && speed > 0) {
+          bmsLimitKw = 0;
+          limitReason = 'lowSpeed';
+        }
+        if (brake >= 75 && speed > 0) {
+          limitReason = 'panic';
+        }
+      }
+
+      let regenKw = 0, hydKw = 0;
+      if (speed === 0) {
+        hydKw = brake > 0 ? 12 : 0;
+      } else if (demandKw > 0.1) {
+        regenKw = Math.min(demandKw, bmsLimitKw);
+        hydKw = Math.max(0, demandKw - regenKw);
+      }
+
+      const totalKw = regenKw + hydKw;
+      const pctRegen = totalKw > 0.1 ? Math.round((regenKw / totalKw) * 100) : 0;
+      const pctHyd   = totalKw > 0.1 ? (100 - pctRegen) : 0;
+
+      let uOc = 690;
+      if (soc <= 20) uOc = 640 + soc * 2.5;
+      else if (soc <= 85) uOc = 690 + (soc - 20) * 1.06;
+      else uOc = 758.9 + (soc - 85) * 2.8;
+
+      const uBat = Math.round(uOc + (regenKw > 0 ? regenKw * 0.06 : 0));
+      const currentA = regenKw > 0.05 ? (regenKw * 1000) / uBat : 0;
+
+      let torqueNm = 0;
+      if (regenKw > 0.1 && vMs > 0.5) {
+        torqueNm = Math.min(350, Math.round((regenKw * 1000) / ((vMs / 0.36) * 10.65)));
+      }
+
+      let hydBar = 0;
+      if (speed === 0 && brake > 0) hydBar = brake * 0.75;
+      else if (hydKw > 0.1) hydBar = Math.min(115, (hydKw / Math.max(12, vMs * 3.6)) * 28.5);
+
+      const decelG = (speed > 0 && totalKw > 0.1) ? Math.min(0.95, (totalKw * 1000) / (2000 * vMs * 9.81)) : 0;
+      const ekKj = (2000 * vMs * vMs) / 2000;
+      const retKj = (speed === 0 || totalKw <= 0.1) ? 0 : Math.round(ekKj * 0.72 * (regenKw / totalKw));
+
+      document.getElementById('pctRegen').textContent = pctRegen + '%';
+      document.getElementById('pctHyd').textContent   = pctHyd + '%';
+      document.getElementById('barRegen').style.width = pctRegen + '%';
+      document.getElementById('barHyd').style.width   = pctHyd + '%';
+
+      document.getElementById('outPower').textContent   = regenKw > 0.05 ? ('−' + fmt(regenKw, 1) + ' кВт') : '0,0 кВт';
+      document.getElementById('outCurrent').textContent = currentA > 0.05 ? ('Ток ВВБ: −' + fmt(currentA, 1) + ' А') : 'Ток ВВБ: 0,0 А';
+      document.getElementById('outVolt').textContent    = uBat + ' В';
+      document.getElementById('outTemp').textContent    = isCold ? 'Температура: −15 °C' : 'Температура: +24 °C';
+      document.getElementById('outTorque').textContent  = torqueNm > 0 ? ('−' + torqueNm + ' Н·м') : '0 Н·м';
+      document.getElementById('outDecel').textContent   = 'Замедление: ' + fmt(decelG, 2) + ' g';
+      document.getElementById('outPress').textContent   = fmt(hydBar, 1) + ' бар';
+      document.getElementById('outEnergy').textContent  = 'Возврат до 0: ' + retKj + ' кДж';
+
+      const xCells = document.querySelectorAll('#battModulesGroup .batt-cell');
+      const litModules = Math.max(1, Math.round((soc / 100) * xCells.length));
+      xCells.forEach(function (cell, idx) {
+        cell.setAttribute('fill', idx < litModules ? socColor : '#1c2636');
+        cell.setAttribute('opacity', idx < litModules ? (regenKw > 1 ? '0.95' : '0.62') : '0.45');
+      });
+
+      document.getElementById('regenFlowGroup').setAttribute('opacity', regenKw > 0.5 ? '1' : '0');
+      document.getElementById('hydFlowGroup').setAttribute('opacity', hydBar > 0.5 ? '1' : '0.14');
+
+      const discFill = hydBar > 0.5 ? '#f97316' : '#526580';
+      const discOp   = hydBar > 0.5 ? Math.min(1, 0.45 + (hydBar / 65) * 0.55).toFixed(2) : '0.45';
+      document.getElementById('discFront').setAttribute('fill', discFill);
+      document.getElementById('discFront').setAttribute('opacity', discOp);
+      document.getElementById('discRear').setAttribute('fill', discFill);
+      document.getElementById('discRear').setAttribute('opacity', discOp);
+
+      const calColor = hydBar > 0.5 ? '#ef4444' : '#475569';
+      document.getElementById('caliperFront').setAttribute('fill', calColor);
+      document.getElementById('caliperRear').setAttribute('fill', calColor);
+
+      document.getElementById('stopLight').setAttribute('opacity', (brake > 0 || (level >= 3 && speed > 0)) ? '1' : '0.25');
+
+      const statusEl = document.getElementById('ecuStatusLine');
+      const statusTxt = document.getElementById('ecuStatusText');
+
+      if (speed === 0) {
+        statusEl.className = 'status-line neutral';
+        statusTxt.textContent = brake > 0 ? 'Стоянка (0 км/ч): удержание гидравликой IEB A1' : 'Стоянка (0 км/ч): привод обесточен';
+      } else if (brake === 0 && level === 0) {
+        statusEl.className = 'status-line neutral';
+        statusTxt.textContent = 'Свободный накат (Ур. 0) — нулевой ток рекуперации';
+      } else if (level === 0 && brake > 0) {
+        statusEl.className = 'status-line warn';
+        statusTxt.textContent = 'Рекуперация отключена (Ур. 0): торможение только гидравликой IEB A1';
+      } else if (brake === 0 && level > 0) {
+        statusEl.className = 'status-line info';
+        statusTxt.textContent = 'Рекуперация лепестками (' + lvlNames[level] + ') без нажатия тормоза';
+      } else if (limitReason === 'panic') {
+        statusEl.className = 'status-line danger';
+        statusTxt.textContent = 'Экстренное торможение (> 0,35 g): PMSM + полное давление IEB';
+      } else if (limitReason === 'fullSoc') {
+        statusEl.className = 'status-line warn';
+        statusTxt.textContent = 'Заряд ' + soc + '%: BMS ограничивает ток, IEB дожимает колодками';
+      } else if (limitReason === 'cold') {
+        statusEl.className = 'status-line info';
+        statusTxt.textContent = 'Холодная ВВБ (−15 °C): лимит BMS 22 кВт, компенсация IEB';
+      } else if (limitReason === 'lowSpeed') {
+        statusEl.className = 'status-line warn';
+        statusTxt.textContent = 'Низкая скорость (< 7 км/ч): плавная остановка гидравликой';
+      } else {
+        statusEl.className = 'status-line';
+        statusTxt.textContent = 'Штатная рекуперация: PMSM → SiC MCU → ВВБ GB2';
+      }
+    }
+
+    let wheelAngle = 0, roadOffset = 0, lastTs = null;
+
+    function animateCar(ts) {
+      if (lastTs === null) lastTs = ts;
+      const dt = Math.min(0.05, (ts - lastTs) / 1000);
+      lastTs = ts;
+
+      if (sim.speed > 0) {
+        wheelAngle = (wheelAngle + sim.speed * 9.2 * dt) % 360;
+        roadOffset = (roadOffset + sim.speed * 2.6 * dt) % 152;
+        const rot = 'rotate(' + wheelAngle.toFixed(1) + ')';
+        const wf = document.getElementById('wheelFront');
+        const wr = document.getElementById('wheelRear');
+        const rm = document.getElementById('roadMarks');
+        if (wf) wf.setAttribute('transform', rot);
+        if (wr) wr.setAttribute('transform', rot);
+        if (rm) rm.setAttribute('transform', 'translate(' + (-roadOffset).toFixed(1) + ', 0)');
+      }
+      requestAnimationFrame(animateCar);
+    }
+
+    function setCalcPower(kw, btn) {
+      document.querySelectorAll('.pwr-btn').forEach(function (b) {
+        b.classList.remove('active');
+      });
+      if (btn) btn.classList.add('active');
+
+      const rSum = 0.08;
+      const i400 = (kw * 1000) / 400;
+      const i800 = (kw * 1000) / 800;
+      const loss400 = (i400 * i400 * rSum) / 1000;
+      const loss800 = (i800 * i800 * rSum) / 1000;
+
+      document.getElementById('c400I').innerHTML    = '<b>' + fmt(i400, 1) + ' А</b>';
+      document.getElementById('c800I').innerHTML    = '<b>' + fmt(i800, 1) + ' А</b>';
+      document.getElementById('c400Loss').innerHTML = '<b>' + fmt(loss400, 2) + ' кВт</b>';
+      document.getElementById('c800Loss').innerHTML = '<b>' + fmt(loss800, 2) + ' кВт</b>';
+
+      document.getElementById('c400BarTxt').textContent = fmt(loss400, 2) + ' кВт';
+      document.getElementById('c800BarTxt').textContent = fmt(loss800, 2) + ' кВт';
+
+      const maxLoss = 20;
+      document.getElementById('c400Bar').style.width = Math.min(100, (loss400 / maxLoss) * 100).toFixed(1) + '%';
+      document.getElementById('c800Bar').style.width = Math.min(100, (loss800 / maxLoss) * 100).toFixed(1) + '%';
+    }
+
+    function initApp() {
+      try { initSchemeImage(); } catch (e) {}
+      try { buildSpeedDialStatic(); } catch (e) {}
+      try { buildSegmentedBars(); } catch (e) {}
+      try { bindDialInteraction(); } catch (e) {}
+      try { bindPedalInteraction(); } catch (e) {}
+      try { bindSchemeViewerInteraction(); } catch (e) {}
+      try { bindSwipeNavigation(); } catch (e) {}
+      try { bindBarInteraction('socBar', 10, 100, function (v) { sim.soc = v; }); } catch (e) {}
+
+      try { goToSlide(1); } catch (e) {}
+      try { selectNode('pmsm'); } catch (e) {}
+      try { updateSim(); } catch (e) {}
+      try { requestAnimationFrame(animateCar
