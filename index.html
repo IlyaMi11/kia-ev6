@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -63,9 +62,7 @@
     .num { font-variant-numeric: tabular-nums; }
 
     /* =====================================================================
-       КАРКАС ПРИЛОЖЕНИЯ:
-       На мобильных — вертикальный (шапка + контент + низ)
-       На ПК/мультиборде (>=1024px) — 2 колонки: левая панель + 100vh рабочая зона
+       КАРКАС ПРИЛОЖЕНИЯ
        ===================================================================== */
     .app-layout {
       min-height: 100dvh;
@@ -73,7 +70,6 @@
       flex-direction: column;
     }
 
-    /* Мобильная шапка (скрыта на ПК) */
     .mobile-header {
       background: var(--bg-sidebar);
       border-bottom: 1px solid var(--border);
@@ -111,12 +107,10 @@
       color: var(--text-sec);
     }
 
-    /* Десктопная левая панель (скрыта на мобильных) */
     .desktop-sidebar {
       display: none;
     }
 
-    /* Рабочая область слайдов */
     .workspace {
       flex: 1;
       padding: 12px 12px 76px 12px;
@@ -129,9 +123,20 @@
       flex: 1;
       display: flex;
       flex-direction: column;
+      animation: slideFadeIn 0.25s ease-out;
     }
 
-    /* Мобильная нижняя навигация (скрыта на ПК) */
+    @keyframes slideFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
     .mobile-nav {
       position: fixed;
       left: 0;
@@ -165,7 +170,7 @@
     }
 
     /* =====================================================================
-       ОБЩИЕ ЗАГОЛОВКИ И КАРТОЧКИ
+       ОБЩИЕ ЗАГОЛОВКИ И ПАНЕЛИ
        ===================================================================== */
     .panel {
       background: var(--bg-surface);
@@ -194,6 +199,35 @@
       margin: 2px 0 0 0;
       font-size: 13px;
       color: var(--text-sec);
+    }
+
+    .preset-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .pill-btn {
+      cursor: pointer;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-strong);
+      color: var(--text-sec);
+      border-radius: 6px;
+      padding: 6px 11px;
+      font-size: 12.5px;
+      font-weight: 600;
+      transition: all 0.15s ease;
+    }
+
+    .pill-btn:hover {
+      border-color: var(--accent);
+      color: var(--text);
+    }
+
+    .pill-btn.active {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      color: #ffffff;
     }
 
     /* =====================================================================
@@ -272,9 +306,193 @@
       font-weight: 600;
     }
 
-    /* Превью автомобиля показываем только на широком экране, чтобы не захламлять телефон */
-    .title-art-desktop {
-      display: none;
+    .title-cad-card {
+      background: #101620;
+      border: 1px solid var(--border-strong);
+      border-radius: 10px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .cad-head {
+      padding: 9px 13px;
+      background: #141c28;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .cad-zoom-btn {
+      cursor: pointer;
+      background: transparent;
+      border: 1px solid var(--border-strong);
+      color: var(--accent);
+      border-radius: 5px;
+      padding: 3px 9px;
+      font-size: 11.5px;
+      font-weight: 600;
+    }
+
+    .cad-zoom-btn:hover {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+    }
+
+    .real-scheme-box {
+      background: #ffffff;
+      padding: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 210px;
+      max-height: 330px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .real-scheme-box.is-empty {
+      background: #0d131c;
+    }
+
+    .real-scheme-img {
+      width: 100%;
+      height: auto;
+      max-height: 314px;
+      object-fit: contain;
+      display: block;
+      cursor: zoom-in;
+    }
+
+    .real-scheme-fallback {
+      text-align: center;
+      padding: 20px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-sec);
+      font-size: 13px;
+    }
+
+    .real-scheme-fallback code {
+      background: #182233;
+      color: var(--accent);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+
+    .pick-file-btn {
+      cursor: pointer;
+      display: inline-block;
+      background: var(--accent-soft);
+      border: 1px solid var(--accent);
+      color: #ffffff;
+      border-radius: 6px;
+      padding: 7px 13px;
+      font-size: 12.5px;
+      font-weight: 600;
+    }
+
+    .cad-footer {
+      padding: 11px 13px;
+      border-top: 1px solid var(--border);
+      background: #141a24;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+
+    .cad-desc {
+      margin: 0;
+      font-size: 12.5px;
+      line-height: 1.42;
+      color: var(--text-sec);
+    }
+
+    .cad-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .cad-cta {
+      cursor: pointer;
+      background: var(--accent-soft);
+      border: 1px solid var(--accent);
+      color: #ffffff;
+      border-radius: 6px;
+      padding: 7px 13px;
+      font-size: 12.5px;
+      font-weight: 600;
+      transition: background 0.15s ease;
+    }
+
+    .cad-cta:hover {
+      background: rgba(56, 189, 248, 0.25);
+    }
+
+    .scheme-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      background: rgba(8, 11, 16, 0.92);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+    }
+
+    .scheme-modal-bar {
+      width: 100%;
+      max-width: 1280px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .scheme-modal-close {
+      cursor: pointer;
+      background: var(--bg-surface-2);
+      border: 1px solid var(--border-strong);
+      color: #ffffff;
+      border-radius: 6px;
+      padding: 6px 14px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .scheme-modal-img-wrap {
+      width: 100%;
+      max-width: 1280px;
+      max-height: 85vh;
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 10px;
+      overflow: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .scheme-modal-img-wrap img {
+      max-width: 100%;
+      max-height: 80vh;
+      height: auto;
+      display: block;
     }
 
     /* =====================================================================
@@ -285,18 +503,17 @@
       grid-template-columns: 1fr;
       gap: 12px;
       flex: 1;
-      min-height: 0;
     }
 
     .svg-frame {
-      background: #121720;
+      background: var(--bg-surface);
       border: 1px solid var(--border);
       border-radius: 8px;
       padding: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
-      overflow-x: auto;
+      overflow: hidden;
     }
 
     .svg-frame svg {
@@ -306,22 +523,24 @@
       user-select: none;
     }
 
-    .svg-node { cursor: pointer; }
+    .svg-node {
+      cursor: pointer;
+    }
 
     .svg-node rect.node-box {
-      fill: #1a2230;
-      stroke: #36455e;
+      fill: #141a24;
+      stroke: #37455e;
       stroke-width: 1.5;
-      transition: fill 0.15s ease, stroke 0.15s ease;
+      transition: fill 0.15s ease, stroke 0.15s ease, stroke-width 0.15s ease;
     }
 
     .svg-node:hover rect.node-box {
-      fill: #222d40;
+      fill: #1b2434;
       stroke: var(--accent);
     }
 
     .svg-node.active rect.node-box {
-      fill: #1b2f45;
+      fill: #1a283d;
       stroke: var(--accent);
       stroke-width: 2.5;
     }
@@ -335,141 +554,130 @@
 
     .node-group {
       font-size: 11.5px;
-      font-weight: 600;
+      font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.06em;
+      letter-spacing: 0.04em;
       color: var(--accent);
-      margin-bottom: 4px;
+      margin-bottom: 6px;
     }
 
     .node-info h3 {
       margin: 0 0 12px 0;
       font-size: 18px;
+      font-weight: 700;
       color: #ffffff;
     }
 
     .node-info ul {
       margin: 0;
       padding-left: 18px;
-      color: var(--text);
+      color: var(--text-sec);
       font-size: 14px;
-    }
-
-    .node-info li {
-      margin-bottom: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
     }
 
     /* =====================================================================
-       СЛАЙД 3: ЭМУЛЯТОР РЕКУПЕРАЦИИ (ЧИСТЫЙ, БЕЗ ПЕРЕГРУЗА)
+       СЛАЙД 3: ЭМУЛЯТОР РЕЖИМОВ
        ===================================================================== */
-    .preset-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
-
-    .pill-btn {
-      cursor: pointer;
-      background: var(--bg-surface);
-      border: 1px solid var(--border-strong);
-      color: var(--text-sec);
-      padding: 7px 12px;
-      border-radius: 6px;
-      font-size: 13px;
-      font-weight: 600;
-      transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
-    }
-
-    .pill-btn:hover {
-      color: var(--text);
-      border-color: var(--accent);
-    }
-
-    .pill-btn.active {
-      background: var(--accent-soft);
-      border-color: var(--accent);
-      color: #ffffff;
-    }
-
     .sim-grid {
       display: grid;
       grid-template-columns: 1fr;
       gap: 12px;
       flex: 1;
-      min-height: 0;
     }
 
     .sim-visual-col {
       display: flex;
       flex-direction: column;
       gap: 10px;
-      min-width: 0;
     }
 
-    /* Чистая сцена X-Ray автомобиля */
     .car-stage {
-      background: #121720;
+      background: var(--bg-surface);
       border: 1px solid var(--border);
       border-radius: 8px;
-      padding: 12px 14px 8px 14px;
-      flex: 1;
+      padding: 12px;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
+      gap: 8px;
     }
 
     .status-line {
       display: flex;
       align-items: center;
-      gap: 8px;
-      font-size: 13.5px;
+      gap: 9px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      background: var(--regen-soft);
+      border: 1px solid rgba(34, 197, 94, 0.35);
+      color: #dcfce7;
+      font-size: 13px;
       font-weight: 600;
-      color: var(--regen);
-      margin-bottom: 4px;
     }
 
     .status-dot {
-      width: 8px;
-      height: 8px;
+      width: 9px;
+      height: 9px;
       border-radius: 50%;
       background: var(--regen);
       flex-shrink: 0;
     }
 
-    .status-line.info { color: var(--accent); }
-    .status-line.info .status-dot { background: var(--accent); }
-    .status-line.warn { color: var(--warn); }
-    .status-line.warn .status-dot { background: var(--warn); }
-    .status-line.danger { color: var(--danger); }
-    .status-line.danger .status-dot { background: var(--danger); }
-    .status-line.neutral { color: var(--text-sec); }
-    .status-line.neutral .status-dot { background: var(--text-mute); }
+    .status-line.neutral {
+      background: rgba(148, 163, 184, 0.12);
+      border-color: rgba(148, 163, 184, 0.3);
+      color: var(--text);
+    }
+    .status-line.neutral .status-dot { background: var(--text-sec); }
 
-    .xray-svg {
+    .status-line.info {
+      background: var(--accent-soft);
+      border-color: rgba(56, 189, 248, 0.35);
+      color: #e0f2fe;
+    }
+    .status-line.info .status-dot { background: var(--accent); }
+
+    .status-line.warn {
+      background: var(--hyd-soft);
+      border-color: rgba(249, 115, 22, 0.4);
+      color: #ffedd5;
+    }
+    .status-line.warn .status-dot { background: var(--hyd); }
+
+    .status-line.danger {
+      background: rgba(239, 68, 68, 0.16);
+      border-color: rgba(239, 68, 68, 0.45);
+      color: #fee2e2;
+    }
+    .status-line.danger .status-dot { background: var(--danger); }
+
+    .car-svg {
       width: 100%;
       height: auto;
-      max-height: 250px;
+      max-height: 240px;
       display: block;
       margin: 0 auto;
       user-select: none;
     }
 
     .energy-stream {
-      stroke-dasharray: 9 7;
-      animation: flowMove 0.65s linear infinite;
+      stroke-dasharray: 8 6;
+      animation: energyFlow 0.7s linear infinite;
     }
 
     .hyd-stream {
       stroke-dasharray: 6 5;
-      animation: flowMove 0.55s linear infinite;
+      animation: energyFlow 0.65s linear infinite;
     }
 
-    @keyframes flowMove {
-      from { stroke-dashoffset: 16; }
+    @keyframes energyFlow {
+      from { stroke-dashoffset: 14; }
       to   { stroke-dashoffset: 0; }
     }
 
-    /* Шкала соотношения Рекуперация / Гидравлика */
+    /* Полоса баланса рекуперации и гидравлики */
     .split-box {
       background: var(--bg-surface);
       border: 1px solid var(--border);
@@ -480,63 +688,72 @@
     .split-labels {
       display: flex;
       justify-content: space-between;
-      gap: 10px;
+      flex-wrap: wrap;
+      gap: 6px;
       font-size: 13px;
       font-weight: 600;
-      margin-bottom: 6px;
+      margin-bottom: 7px;
     }
 
     .split-track {
-      height: 9px;
+      width: 100%;
+      height: 11px;
       background: #232c3d;
-      border-radius: 4px;
+      border-radius: 6px;
       overflow: hidden;
       display: flex;
     }
 
     .split-regen {
       height: 100%;
-      background: var(--regen);
-      transition: width 0.18s ease;
+      background: linear-gradient(90deg, #16a34a, #22c55e);
+      transition: width 0.2s ease;
     }
 
     .split-hyd {
       height: 100%;
-      background: var(--hyd);
-      transition: width 0.18s ease;
+      background: linear-gradient(90deg, #ea580c, #f97316);
+      transition: width 0.2s ease;
     }
 
-    /* Единая компактная строка телеметрии (4 аккуратных блока вместо 8 пестрых карточек) */
+    /* Сетка 4 блоков телеметрии (2x2 на телефоне, 4x1 на ПК) */
     .telemetry-strip {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
       background: var(--bg-surface);
       border: 1px solid var(--border);
       border-radius: 8px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
       overflow: hidden;
     }
 
     .tel-item {
-      padding: 11px 14px;
+      padding: 11px 13px;
       border-bottom: 1px solid var(--border);
       border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
     }
 
-    .tel-item:nth-child(2n) { border-right: none; }
-    .tel-item:nth-last-child(-n+2) { border-bottom: none; }
+    .tel-item:nth-child(2n) {
+      border-right: none;
+    }
+
+    .tel-item:nth-last-child(-n+2) {
+      border-bottom: none;
+    }
 
     .tel-label {
       font-size: 11.5px;
       font-weight: 600;
       color: var(--text-sec);
-      margin-bottom: 3px;
     }
 
     .tel-main {
       font-size: 20px;
       font-weight: 700;
-      color: #ffffff;
       line-height: 1.2;
+      color: #ffffff;
     }
 
     .tel-main.green { color: var(--regen); }
@@ -546,10 +763,9 @@
     .tel-extra {
       font-size: 12px;
       color: var(--text-mute);
-      margin-top: 2px;
     }
 
-    /* Панель управления (приборы без стандартных веб-слайдеров) */
+    /* Панель управления */
     .sim-controls-col {
       background: var(--bg-surface);
       border: 1px solid var(--border);
@@ -565,17 +781,19 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      gap: 4px;
       padding-bottom: 10px;
       border-bottom: 1px solid var(--border);
     }
 
     .speed-dial-svg {
-      width: 190px;
-      height: 142px;
+      width: 100%;
+      max-width: 210px;
+      height: auto;
+      display: block;
       cursor: pointer;
       touch-action: none;
       user-select: none;
-      display: block;
     }
 
     .speed-nudges {
@@ -642,6 +860,40 @@
       transition: background-color 0.1s ease;
     }
 
+    /* Интерактивная педаль тормоза (вид сбоку) */
+    .pedal-box {
+      background: #121720;
+      border: 1px solid var(--border-strong);
+      border-radius: 7px;
+      padding: 6px 8px 7px 8px;
+      cursor: ew-resize;
+      touch-action: none;
+      user-select: none;
+    }
+
+    .pedal-svg {
+      width: 100%;
+      height: auto;
+      max-height: 112px;
+      display: block;
+    }
+
+    .pedal-readout {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 4px;
+      padding-top: 5px;
+      border-top: 1px solid rgba(40, 50, 68, 0.8);
+      font-size: 12px;
+      color: var(--text-sec);
+    }
+
+    .pedal-readout b {
+      font-size: 14px;
+      color: var(--accent);
+    }
+
     .paddle-bar {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
@@ -703,7 +955,7 @@
     }
 
     /* =====================================================================
-       СЛАЙД 4: СРАВНЕНИЕ 400 В vs 800 В (БЕЗ ОБРЕЗКИ ТАБЛИЦЫ НА ТЕЛЕФОНЕ)
+       СЛАЙД 4: СРАВНЕНИЕ 400 В vs 800 В
        ===================================================================== */
     .calc-table-box {
       background: var(--bg-surface);
@@ -750,7 +1002,6 @@
       color: var(--accent);
     }
 
-    /* На узких экранах скрываем 4-ю дублирующую колонку, чтобы таблица помещалась целиком без обрезки */
     .col-note {
       display: none;
     }
@@ -824,7 +1075,6 @@
 
     /* =====================================================================
        ЭРГОНОМИКА ДЛЯ ПК И WINDOWS-МУЛЬТИБОРДА (>= 1024px)
-       Полностью отдельная раскладка: левая панель + 100vh без прокрутки
        ===================================================================== */
     @media (min-width: 1024px) {
       .mobile-header,
@@ -839,7 +1089,6 @@
         overflow: hidden;
       }
 
-      /* Левая навигационная колонка — удобно кликать мышью или нажимать рукой у доски */
       .desktop-sidebar {
         display: flex;
         flex-direction: column;
@@ -967,7 +1216,6 @@
         text-align: center;
       }
 
-      /* Рабочая область 100vh без вертикального скролла */
       .workspace {
         flex: 1;
         padding: 22px 28px;
@@ -984,7 +1232,6 @@
         font-size: 24px;
       }
 
-      /* Слайд 1 на ПК: чистый широкоформатный титул 2 колонки */
       .title-wrap {
         display: grid;
         grid-template-columns: 1.15fr 0.85fr;
@@ -1027,15 +1274,10 @@
         font-size: 15px;
       }
 
-      .title-art-desktop {
-        display: block;
-        background: #121720;
-        border: 1px solid var(--border);
-        border-radius: 10px;
-        padding: 20px;
+      .title-cad-card {
+        max-height: 100%;
       }
 
-      /* Слайд 2 на ПК: 70% схема / 30% описание */
       .schema-grid {
         grid-template-columns: 7fr 3fr;
         gap: 18px;
@@ -1050,14 +1292,13 @@
         font-size: 15px;
       }
 
-      /* Слайд 3 на ПК/мультиборде: слева машина и 4 цифры, справа панель управления под правую руку */
       .sim-grid {
         grid-template-columns: 1fr 330px;
         gap: 18px;
         align-items: stretch;
       }
 
-      .xray-svg {
+      .car-svg {
         max-height: 310px;
       }
 
@@ -1083,7 +1324,6 @@
         font-size: 23px;
       }
 
-      /* Слайд 4 на ПК: полная таблица с 4 колонками и 2 карточки снизу */
       .col-note {
         display: table-cell;
       }
@@ -1107,7 +1347,7 @@
 <body>
   <div class="app-layout">
 
-    <!-- ==================== МОБИЛЬНАЯ ШАПКА (ЧИСТАЯ, БЕЗ ГРАДУСОВ И ЧАСОВ) ==================== -->
+    <!-- ==================== МОБИЛЬНАЯ ШАПКА ==================== -->
     <header class="mobile-header">
       <div class="brand-mark">
         <span>Kia EV6</span>
@@ -1189,28 +1429,37 @@
             </div>
           </div>
 
-          <!-- Спокойная инженерная схема на титуле (только на широком экране ПК/мультиборда) -->
-          <div class="title-art-desktop">
-            <svg viewBox="0 0 540 230" class="xray-svg" xmlns="http://www.w3.org/2000/svg">
-              <line x1="20" y1="186" x2="520" y2="186" stroke="#283244" stroke-width="1.5"/>
-              <rect x="166" y="148" width="204" height="16" rx="3" fill="#22c55e" opacity="0.78"/>
-              <rect x="110" y="138" width="38" height="22" rx="4" fill="#182a3d" stroke="#38bdf8" stroke-width="1.5"/>
-              <rect x="386" y="128" width="36" height="20" rx="3" fill="#2b1e1a" stroke="#f97316" stroke-width="1.4"/>
-              <path d="M 148 149 L 166 149" stroke="#22c55e" stroke-width="3" class="energy-stream"/>
-              <path d="M 422 138 L 456 154" stroke="#f97316" stroke-width="1.6" stroke-dasharray="4 3"/>
-              <path d="M 68 150 L 62 128 Q 60 112 82 102 L 124 92 Q 168 56 238 52 L 320 52 Q 376 58 412 92 L 472 104 Q 494 110 496 134 L 492 154 Q 488 162 472 162 L 438 162 A 34 34 0 0 0 370 162 L 178 162 A 34 34 0 0 0 110 162 L 82 162 Q 69 162 68 150 Z"
-                    fill="rgba(56, 189, 248, 0.07)" stroke="#6482a3" stroke-width="1.8"/>
-              <path d="M 142 94 Q 180 64 240 61 L 312 61 Q 360 64 392 94 Z" fill="rgba(255,255,255,0.03)" stroke="#47617d" stroke-width="1.2"/>
-              <path d="M 64 120 L 100 111" stroke="#ef4444" stroke-width="4" stroke-linecap="round"/>
-              <path d="M 458 111 L 490 118" stroke="#38bdf8" stroke-width="3" stroke-linecap="round"/>
-              <circle cx="144" cy="158" r="26" fill="#10141b" stroke="#5b7391" stroke-width="2"/>
-              <circle cx="144" cy="158" r="13" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
-              <circle cx="404" cy="158" r="26" fill="#10141b" stroke="#5b7391" stroke-width="2"/>
-              <circle cx="404" cy="158" r="13" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
-              <text x="132" y="206" text-anchor="middle" font-size="11.5" fill="#22c55e" font-family="Segoe UI, Roboto, Arial, sans-serif" font-weight="600">PMSM + SiC MCU</text>
-              <text x="272" y="206" text-anchor="middle" font-size="11.5" fill="#38bdf8" font-family="Segoe UI, Roboto, Arial, sans-serif" font-weight="600">ВВБ GB2 (800 В)</text>
-              <text x="408" y="206" text-anchor="middle" font-size="11.5" fill="#f97316" font-family="Segoe UI, Roboto, Arial, sans-serif" font-weight="600">Бустер IEB A1</text>
-            </svg>
+          <div class="title-cad-card no-swipe">
+            <div class="cad-head">
+              <span>Электрическая схема тормозной системы</span>
+              <button type="button" id="cadZoomBtn" class="cad-zoom-btn" onclick="openSchemeModal()">Увеличить</button>
+            </div>
+
+            <div id="realSchemeBox" class="real-scheme-box">
+              <img id="realSchemeImg"
+                   class="real-scheme-img"
+                   src="scheme.png"
+                   alt="Принципиальная электрическая схема тормозной системы Kia EV6"
+                   onclick="openSchemeModal()"
+                   onerror="handleSchemeErr(this)">
+
+              <div id="realSchemeFallback" class="real-scheme-fallback hidden">
+                <div>Положите картинку чертежа <code>scheme.png</code> (или <code>scheme.jpg</code>) в репозиторий рядом с <code>index.html</code></div>
+                <label class="pick-file-btn" for="localSchemeInput">Открыть чертёж с устройства</label>
+              </div>
+              <input id="localSchemeInput" type="file" accept="image/*" class="hidden" onchange="loadLocalScheme(event)">
+            </div>
+
+            <div class="cad-footer">
+              <p class="cad-desc">
+                Принципиальная схема объединяет силовой контур 800 В (PMSM, SiC-инвертор, BMS, ВВБ GB2), бустер IEB и резервную сеть 12 В (LDC, IBS, приборы A5).
+              </p>
+              <div class="cad-actions">
+                <button type="button" class="cad-cta" onclick="goToSlide(2)">
+                  Интерактивная схема →
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -1218,15 +1467,12 @@
       <!-- ==================== СЛАЙД 2: СТРУКТУРНАЯ СХЕМА ==================== -->
       <section class="slide hidden" data-slide="2">
         <div class="slide-header">
-          <div>
-            <h2 class="slide-title">Структурная схема тормозной системы</h2>
-            <p class="slide-subtitle">Нажмите на любой блок схемы для просмотра назначения и состава</p>
-          </div>
+          <h2 class="slide-title">Структурная схема тормозной системы</h2>
         </div>
 
         <div class="schema-grid">
           <div class="svg-frame no-swipe">
-            <svg viewBox="0 0 820 435" xmlns="http://www.w3.org/2000/svg">
+            <svg viewBox="0 0 820 420" xmlns="http://www.w3.org/2000/svg">
               <defs>
                 <marker id="arrHv" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
                   <path d="M 0 1 L 10 5 L 0 9 z" fill="#f97316"/>
@@ -1242,134 +1488,110 @@
                 </marker>
               </defs>
 
-              <!-- Контур 800 В -->
-              <rect x="10" y="10" width="800" height="122" rx="5" fill="rgba(249, 115, 22, 0.05)" stroke="rgba(249, 115, 22, 0.4)" stroke-width="1.2" stroke-dasharray="6,4"/>
-              <text x="22" y="28" font-size="11.5" font-weight="700" fill="#f97316" font-family="Segoe UI, Roboto, Arial, sans-serif">ВЫСОКОВОЛЬТНЫЙ КОНТУР (800 В)</text>
+              <rect x="10" y="10" width="800" height="114" rx="5" fill="rgba(249, 115, 22, 0.05)" stroke="rgba(249, 115, 22, 0.4)" stroke-width="1.2" stroke-dasharray="6,4"/>
+              <text x="22" y="28" font-size="11.5" font-weight="700" fill="#f97316" font-family="Segoe UI, Roboto, Arial, sans-serif">КОНТУР 800 В</text>
 
-              <!-- Силовые линии 800 В -->
-              <line x1="172" y1="74" x2="218" y2="74" stroke="#f97316" stroke-width="2.8" marker-start="url(#arrHv)" marker-end="url(#arrHv)"/>
-              <text x="195" y="63" text-anchor="middle" font-size="11" font-weight="600" fill="#f97316" font-family="Segoe UI, Roboto, Arial, sans-serif">3~ AC</text>
+              <line x1="172" y1="72" x2="218" y2="72" stroke="#f97316" stroke-width="2.8" marker-start="url(#arrHv)" marker-end="url(#arrHv)"/>
+              <text x="195" y="61" text-anchor="middle" font-size="11" font-weight="600" fill="#f97316" font-family="Segoe UI, Roboto, Arial, sans-serif">3~ AC</text>
 
-              <line x1="382" y1="74" x2="432" y2="74" stroke="#f97316" stroke-width="2.8" marker-start="url(#arrHv)" marker-end="url(#arrHv)"/>
-              <text x="407" y="63" text-anchor="middle" font-size="11" font-weight="600" fill="#f97316" font-family="Segoe UI, Roboto, Arial, sans-serif">800 В DC</text>
+              <line x1="382" y1="72" x2="432" y2="72" stroke="#f97316" stroke-width="2.8" marker-start="url(#arrHv)" marker-end="url(#arrHv)"/>
+              <text x="407" y="61" text-anchor="middle" font-size="11" font-weight="600" fill="#f97316" font-family="Segoe UI, Roboto, Arial, sans-serif">800 В</text>
 
-              <line x1="592" y1="74" x2="640" y2="74" stroke="#f97316" stroke-width="2.8" marker-start="url(#arrHv)" marker-end="url(#arrHv)"/>
-              <text x="616" y="63" text-anchor="middle" font-size="11" font-weight="600" fill="#f97316" font-family="Segoe UI, Roboto, Arial, sans-serif">800 В</text>
+              <line x1="592" y1="72" x2="640" y2="72" stroke="#f97316" stroke-width="2.8" marker-start="url(#arrHv)" marker-end="url(#arrHv)"/>
+              <text x="616" y="61" text-anchor="middle" font-size="11" font-weight="600" fill="#f97316" font-family="Segoe UI, Roboto, Arial, sans-serif">800 В</text>
 
-              <!-- Отвод на DC-DC -->
-              <path d="M 512 110 L 512 152 L 385 152 L 385 206" fill="none" stroke="#f97316" stroke-width="2.2" marker-end="url(#arrHv)"/>
-              <text x="456" y="145" text-anchor="middle" font-size="11" font-weight="600" fill="#f97316" font-family="Segoe UI, Roboto, Arial, sans-serif">800 В на DC-DC</text>
+              <path d="M 512 104 L 512 146 L 385 146 L 385 200" fill="none" stroke="#f97316" stroke-width="2.2" marker-end="url(#arrHv)"/>
 
-              <!-- Шина CAN -->
-              <line x1="100" y1="176" x2="705" y2="176" stroke="#94a3b8" stroke-width="1.8" stroke-dasharray="6,4"/>
-              <rect x="196" y="165" width="150" height="21" rx="3" fill="#181e29" stroke="#37455e" stroke-width="1"/>
-              <text x="271" y="179" text-anchor="middle" font-size="11" font-weight="600" fill="#cbd5e1" font-family="Segoe UI, Roboto, Arial, sans-serif">Шина CAN-H / CAN-L</text>
+              <line x1="100" y1="170" x2="705" y2="170" stroke="#94a3b8" stroke-width="1.8" stroke-dasharray="6,4"/>
+              <rect x="224" y="159" width="96" height="21" rx="3" fill="#181e29" stroke="#37455e" stroke-width="1"/>
+              <text x="272" y="173" text-anchor="middle" font-size="11" font-weight="600" fill="#cbd5e1" font-family="Segoe UI, Roboto, Arial, sans-serif">Шина CAN</text>
 
-              <line x1="300" y1="110" x2="300" y2="176" stroke="#94a3b8" stroke-width="1.4" stroke-dasharray="4,3"/>
-              <line x1="485" y1="110" x2="485" y2="176" stroke="#94a3b8" stroke-width="1.4" stroke-dasharray="4,3"/>
-              <line x1="100" y1="176" x2="100" y2="206" stroke="#94a3b8" stroke-width="1.4" stroke-dasharray="4,3" marker-end="url(#arrCan)"/>
-              <line x1="705" y1="176" x2="705" y2="206" stroke="#94a3b8" stroke-width="1.4" stroke-dasharray="4,3" marker-end="url(#arrCan)"/>
+              <line x1="300" y1="104" x2="300" y2="170" stroke="#94a3b8" stroke-width="1.4" stroke-dasharray="4,3"/>
+              <line x1="485" y1="104" x2="485" y2="170" stroke="#94a3b8" stroke-width="1.4" stroke-dasharray="4,3"/>
+              <line x1="100" y1="170" x2="100" y2="200" stroke="#94a3b8" stroke-width="1.4" stroke-dasharray="4,3" marker-end="url(#arrCan)"/>
+              <line x1="705" y1="170" x2="705" y2="200" stroke="#94a3b8" stroke-width="1.4" stroke-dasharray="4,3" marker-end="url(#arrCan)"/>
 
-              <!-- Сеть 12 В -->
-              <line x1="385" y1="278" x2="385" y2="318" stroke="#38bdf8" stroke-width="2" marker-end="url(#arr12)"/>
-              <text x="412" y="302" font-size="11" font-weight="600" fill="#38bdf8" font-family="Segoe UI, Roboto, Arial, sans-serif">+12 В</text>
+              <line x1="385" y1="264" x2="385" y2="306" stroke="#38bdf8" stroke-width="2" marker-end="url(#arr12)"/>
+              <text x="410" y="290" font-size="11" font-weight="600" fill="#38bdf8" font-family="Segoe UI, Roboto, Arial, sans-serif">12 В</text>
 
-              <path d="M 300 242 L 185 242" fill="none" stroke="#38bdf8" stroke-width="2" marker-end="url(#arr12)"/>
-              <text x="242" y="234" text-anchor="middle" font-size="11" font-weight="600" fill="#38bdf8" font-family="Segoe UI, Roboto, Arial, sans-serif">Питание 12 В</text>
+              <path d="M 300 232 L 185 232" fill="none" stroke="#38bdf8" stroke-width="2" marker-end="url(#arr12)"/>
+              <text x="242" y="224" text-anchor="middle" font-size="11" font-weight="600" fill="#38bdf8" font-family="Segoe UI, Roboto, Arial, sans-serif">12 В</text>
 
-              <path d="M 470 242 L 620 242" fill="none" stroke="#38bdf8" stroke-width="2" marker-end="url(#arr12)"/>
-              <text x="545" y="234" text-anchor="middle" font-size="11" font-weight="600" fill="#38bdf8" font-family="Segoe UI, Roboto, Arial, sans-serif">12 В / LIN</text>
+              <path d="M 470 232 L 620 232" fill="none" stroke="#38bdf8" stroke-width="2" marker-end="url(#arr12)"/>
+              <text x="545" y="224" text-anchor="middle" font-size="11" font-weight="600" fill="#38bdf8" font-family="Segoe UI, Roboto, Arial, sans-serif">12 В / LIN</text>
 
-              <!-- Гидравлика и диагностика -->
-              <line x1="100" y1="278" x2="100" y2="318" stroke="#ef4444" stroke-width="2" marker-end="url(#arrMech)"/>
-              <text x="148" y="302" font-size="10.5" fill="#f87171" font-family="Segoe UI, Roboto, Arial, sans-serif">Гидравлика</text>
+              <line x1="100" y1="264" x2="100" y2="306" stroke="#ef4444" stroke-width="2" marker-end="url(#arrMech)"/>
+              <line x1="705" y1="264" x2="705" y2="306" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4,3" marker-start="url(#arrCan)" marker-end="url(#arrCan)"/>
 
-              <line x1="705" y1="278" x2="705" y2="318" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4,3" marker-start="url(#arrCan)" marker-end="url(#arrCan)"/>
-              <text x="748" y="302" font-size="10.5" fill="#94a3b8" font-family="Segoe UI, Roboto, Arial, sans-serif">K/L, CAN</text>
-
-              <!-- Блоки схемы -->
               <g class="svg-node active" data-node="pmsm" onclick="selectNode('pmsm')">
-                <rect class="node-box" x="22" y="38" width="148" height="72" rx="5"/>
-                <text x="96" y="60" text-anchor="middle" font-size="12.5" font-weight="700" fill="#f1f5f9" font-family="Segoe UI, Roboto, Arial, sans-serif">Электродвигатель</text>
-                <text x="96" y="78" text-anchor="middle" font-size="12" font-weight="700" fill="#22c55e" font-family="Segoe UI, Roboto, Arial, sans-serif">PMSM</text>
-                <text x="96" y="96" text-anchor="middle" font-size="10.5" fill="#94a3b8" font-family="Segoe UI, Roboto, Arial, sans-serif">Режим генератора</text>
+                <rect class="node-box" x="22" y="40" width="148" height="64" rx="5"/>
+                <text x="96" y="68" text-anchor="middle" font-size="13.5" font-weight="700" fill="#22c55e" font-family="Segoe UI, Roboto, Arial, sans-serif">PMSM</text>
+                <text x="96" y="88" text-anchor="middle" font-size="11.5" fill="#cbd5e1" font-family="Segoe UI, Roboto, Arial, sans-serif">Электродвигатель</text>
               </g>
 
               <g class="svg-node" data-node="mcu" onclick="selectNode('mcu')">
-                <rect class="node-box" x="220" y="38" width="160" height="72" rx="5"/>
-                <text x="300" y="60" text-anchor="middle" font-size="12.5" font-weight="700" fill="#f1f5f9" font-family="Segoe UI, Roboto, Arial, sans-serif">Инвертор MCU</text>
-                <text x="300" y="78" text-anchor="middle" font-size="11.5" font-weight="700" fill="#38bdf8" font-family="Segoe UI, Roboto, Arial, sans-serif">SiC-MOSFET (800 В)</text>
-                <text x="300" y="96" text-anchor="middle" font-size="10.5" fill="#94a3b8" font-family="Segoe UI, Roboto, Arial, sans-serif">Активный выпрямитель</text>
+                <rect class="node-box" x="220" y="40" width="160" height="64" rx="5"/>
+                <text x="300" y="68" text-anchor="middle" font-size="13.5" font-weight="700" fill="#38bdf8" font-family="Segoe UI, Roboto, Arial, sans-serif">Инвертор MCU</text>
+                <text x="300" y="88" text-anchor="middle" font-size="11.5" fill="#cbd5e1" font-family="Segoe UI, Roboto, Arial, sans-serif">SiC-MOSFET</text>
               </g>
 
               <g class="svg-node" data-node="bms" onclick="selectNode('bms')">
-                <rect class="node-box" x="434" y="38" width="156" height="72" rx="5"/>
-                <text x="512" y="60" text-anchor="middle" font-size="12.5" font-weight="700" fill="#f1f5f9" font-family="Segoe UI, Roboto, Arial, sans-serif">Блок A4</text>
-                <text x="512" y="78" text-anchor="middle" font-size="11.5" font-weight="700" fill="#38bdf8" font-family="Segoe UI, Roboto, Arial, sans-serif">BDU / BMS</text>
-                <text x="512" y="96" text-anchor="middle" font-size="10.5" fill="#94a3b8" font-family="Segoe UI, Roboto, Arial, sans-serif">Лимиты тока и защита</text>
+                <rect class="node-box" x="434" y="40" width="156" height="64" rx="5"/>
+                <text x="512" y="68" text-anchor="middle" font-size="13.5" font-weight="700" fill="#38bdf8" font-family="Segoe UI, Roboto, Arial, sans-serif">Блок A4</text>
+                <text x="512" y="88" text-anchor="middle" font-size="11.5" fill="#cbd5e1" font-family="Segoe UI, Roboto, Arial, sans-serif">BDU / BMS</text>
               </g>
 
               <g class="svg-node" data-node="gb2" onclick="selectNode('gb2')">
-                <rect class="node-box" x="642" y="38" width="154" height="72" rx="5"/>
-                <text x="719" y="60" text-anchor="middle" font-size="12.5" font-weight="700" fill="#f1f5f9" font-family="Segoe UI, Roboto, Arial, sans-serif">Тяговая ВВБ</text>
-                <text x="719" y="78" text-anchor="middle" font-size="12" font-weight="700" fill="#22c55e" font-family="Segoe UI, Roboto, Arial, sans-serif">GB2 (800 В)</text>
-                <text x="719" y="96" text-anchor="middle" font-size="10.5" fill="#94a3b8" font-family="Segoe UI, Roboto, Arial, sans-serif">Накопитель энергии</text>
+                <rect class="node-box" x="642" y="40" width="154" height="64" rx="5"/>
+                <text x="719" y="68" text-anchor="middle" font-size="13.5" font-weight="700" fill="#22c55e" font-family="Segoe UI, Roboto, Arial, sans-serif">ВВБ GB2</text>
+                <text x="719" y="88" text-anchor="middle" font-size="11.5" fill="#cbd5e1" font-family="Segoe UI, Roboto, Arial, sans-serif">Батарея 800 В</text>
               </g>
 
               <g class="svg-node" data-node="ieb" onclick="selectNode('ieb')">
-                <rect class="node-box" x="18" y="208" width="164" height="70" rx="5"/>
-                <text x="100" y="230" text-anchor="middle" font-size="12.5" font-weight="700" fill="#f1f5f9" font-family="Segoe UI, Roboto, Arial, sans-serif">Бустер A1 (IEB)</text>
-                <text x="100" y="248" text-anchor="middle" font-size="10.5" fill="#94a3b8" font-family="Segoe UI, Roboto, Arial, sans-serif">Педаль тормоза +</text>
-                <text x="100" y="264" text-anchor="middle" font-size="10.5" fill="#94a3b8" font-family="Segoe UI, Roboto, Arial, sans-serif">распределение усилий</text>
+                <rect class="node-box" x="18" y="202" width="164" height="62" rx="5"/>
+                <text x="100" y="229" text-anchor="middle" font-size="13.5" font-weight="700" fill="#f1f5f9" font-family="Segoe UI, Roboto, Arial, sans-serif">Бустер A1 (IEB)</text>
+                <text x="100" y="249" text-anchor="middle" font-size="11" fill="#94a3b8" font-family="Segoe UI, Roboto, Arial, sans-serif">Тормозной привод</text>
               </g>
 
               <g class="svg-node" data-node="ieb" onclick="selectNode('ieb')">
-                <rect x="26" y="320" width="148" height="46" rx="5" fill="#1e1820" stroke="#7f2b38" stroke-width="1.3"/>
-                <text x="100" y="340" text-anchor="middle" font-size="11.5" font-weight="700" fill="#fca5a5" font-family="Segoe UI, Roboto, Arial, sans-serif">Тормозные суппорты</text>
-                <text x="100" y="356" text-anchor="middle" font-size="10" fill="#a8848a" font-family="Segoe UI, Roboto, Arial, sans-serif">подключает бустер A1</text>
+                <rect x="26" y="308" width="148" height="48" rx="5" fill="#1e1820" stroke="#7f2b38" stroke-width="1.3"/>
+                <text x="100" y="337" text-anchor="middle" font-size="12.5" font-weight="700" fill="#fca5a5" font-family="Segoe UI, Roboto, Arial, sans-serif">Суппорты</text>
               </g>
 
               <g class="svg-node" data-node="ldc" onclick="selectNode('ldc')">
-                <rect class="node-box" x="302" y="208" width="166" height="70" rx="5"/>
-                <text x="385" y="230" text-anchor="middle" font-size="12.5" font-weight="700" fill="#f1f5f9" font-family="Segoe UI, Roboto, Arial, sans-serif">DC-DC LDC (U2)</text>
-                <text x="385" y="248" text-anchor="middle" font-size="11" font-weight="700" fill="#38bdf8" font-family="Segoe UI, Roboto, Arial, sans-serif">800 В → 12 В</text>
-                <text x="385" y="264" text-anchor="middle" font-size="10.5" fill="#94a3b8" font-family="Segoe UI, Roboto, Arial, sans-serif">VT20, VT21, T1, VD16–17</text>
+                <rect class="node-box" x="302" y="202" width="166" height="62" rx="5"/>
+                <text x="385" y="229" text-anchor="middle" font-size="13.5" font-weight="700" fill="#38bdf8" font-family="Segoe UI, Roboto, Arial, sans-serif">DC-DC LDC (U2)</text>
+                <text x="385" y="249" text-anchor="middle" font-size="11" fill="#94a3b8" font-family="Segoe UI, Roboto, Arial, sans-serif">800 В → 12 В</text>
               </g>
 
               <g class="svg-node" data-node="ibs" onclick="selectNode('ibs')">
-                <rect class="node-box" x="292" y="320" width="186" height="58" rx="5"/>
-                <text x="385" y="340" text-anchor="middle" font-size="12" font-weight="700" fill="#f1f5f9" font-family="Segoe UI, Roboto, Arial, sans-serif">АКБ GB1 (12 В) + IBS</text>
-                <text x="385" y="357" text-anchor="middle" font-size="10.5" fill="#94a3b8" font-family="Segoe UI, Roboto, Arial, sans-serif">Шунт R37, АЦП, МП (LIN)</text>
-                <text x="385" y="371" text-anchor="middle" font-size="10" fill="#38bdf8" font-family="Segoe UI, Roboto, Arial, sans-serif">Контроль бортсети</text>
+                <rect class="node-box" x="302" y="308" width="166" height="48" rx="5"/>
+                <text x="385" y="337" text-anchor="middle" font-size="12.5" font-weight="700" fill="#f1f5f9" font-family="Segoe UI, Roboto, Arial, sans-serif">АКБ GB1 + IBS</text>
               </g>
 
               <g class="svg-node" data-node="obd" onclick="selectNode('obd')">
-                <rect class="node-box" x="622" y="208" width="166" height="70" rx="5"/>
-                <text x="705" y="230" text-anchor="middle" font-size="12.5" font-weight="700" fill="#f1f5f9" font-family="Segoe UI, Roboto, Arial, sans-serif">Приборы A5 + LCD</text>
-                <text x="705" y="248" text-anchor="middle" font-size="10.5" fill="#94a3b8" font-family="Segoe UI, Roboto, Arial, sans-serif">Индикаторы HL1–HL3</text>
-                <text x="705" y="264" text-anchor="middle" font-size="10.5" fill="#94a3b8" font-family="Segoe UI, Roboto, Arial, sans-serif">Интерфейс I2C (SCL, SDA)</text>
+                <rect class="node-box" x="622" y="202" width="166" height="62" rx="5"/>
+                <text x="705" y="229" text-anchor="middle" font-size="13.5" font-weight="700" fill="#f1f5f9" font-family="Segoe UI, Roboto, Arial, sans-serif">Приборы A5</text>
+                <text x="705" y="249" text-anchor="middle" font-size="11" fill="#94a3b8" font-family="Segoe UI, Roboto, Arial, sans-serif">Индикация + LCD</text>
               </g>
 
               <g class="svg-node" data-node="obd" onclick="selectNode('obd')">
-                <rect class="node-box" x="622" y="320" width="166" height="58" rx="5"/>
-                <text x="705" y="341" text-anchor="middle" font-size="12" font-weight="700" fill="#f1f5f9" font-family="Segoe UI, Roboto, Arial, sans-serif">Разъём XS4 (OBD-II)</text>
-                <text x="705" y="358" text-anchor="middle" font-size="10.5" fill="#94a3b8" font-family="Segoe UI, Roboto, Arial, sans-serif">16 контактов · Диагностика</text>
-                <text x="705" y="371" text-anchor="middle" font-size="10" fill="#38bdf8" font-family="Segoe UI, Roboto, Arial, sans-serif">Сканер ошибок BMS / IEB</text>
+                <rect class="node-box" x="622" y="308" width="166" height="48" rx="5"/>
+                <text x="705" y="337" text-anchor="middle" font-size="12.5" font-weight="700" fill="#f1f5f9" font-family="Segoe UI, Roboto, Arial, sans-serif">OBD-II (XS4)</text>
               </g>
 
-              <!-- Легенда -->
-              <rect x="18" y="394" width="784" height="30" rx="4" fill="#181e29" stroke="#283244" stroke-width="1"/>
-              <line x1="34" y1="409" x2="66" y2="409" stroke="#f97316" stroke-width="2.8"/>
-              <text x="74" y="413" font-size="11" fill="#cbd5e1" font-family="Segoe UI, Roboto, Arial, sans-serif">Силовые цепи 800 В</text>
+              <rect x="18" y="378" width="784" height="30" rx="4" fill="#181e29" stroke="#283244" stroke-width="1"/>
+              <line x1="40" y1="393" x2="72" y2="393" stroke="#f97316" stroke-width="2.8"/>
+              <text x="80" y="397" font-size="11.5" fill="#cbd5e1" font-family="Segoe UI, Roboto, Arial, sans-serif">800 В</text>
 
-              <line x1="215" y1="409" x2="247" y2="409" stroke="#38bdf8" stroke-width="2"/>
-              <text x="255" y="413" font-size="11" fill="#cbd5e1" font-family="Segoe UI, Roboto, Arial, sans-serif">Бортовая сеть 12 В</text>
+              <line x1="210" y1="393" x2="242" y2="393" stroke="#38bdf8" stroke-width="2"/>
+              <text x="250" y="397" font-size="11.5" fill="#cbd5e1" font-family="Segoe UI, Roboto, Arial, sans-serif">12 В</text>
 
-              <line x1="392" y1="409" x2="424" y2="409" stroke="#94a3b8" stroke-width="1.8" stroke-dasharray="5,3"/>
-              <text x="432" y="413" font-size="11" fill="#cbd5e1" font-family="Segoe UI, Roboto, Arial, sans-serif">Шины данных (CAN / LIN / I2C)</text>
+              <line x1="380" y1="393" x2="412" y2="393" stroke="#94a3b8" stroke-width="1.8" stroke-dasharray="5,3"/>
+              <text x="420" y="397" font-size="11.5" fill="#cbd5e1" font-family="Segoe UI, Roboto, Arial, sans-serif">CAN / LIN / I2C</text>
 
-              <line x1="635" y1="409" x2="667" y2="409" stroke="#ef4444" stroke-width="2"/>
-              <text x="675" y="413" font-size="11" fill="#cbd5e1" font-family="Segoe UI, Roboto, Arial, sans-serif">Гидравлика тормозов</text>
+              <line x1="610" y1="393" x2="642" y2="393" stroke="#ef4444" stroke-width="2"/>
+              <text x="650" y="397" font-size="11.5" fill="#cbd5e1" font-family="Segoe UI, Roboto, Arial, sans-serif">Гидравлика</text>
             </svg>
           </div>
 
@@ -1377,7 +1599,7 @@
         </div>
       </section>
 
-      <!-- ==================== СЛАЙД 3: ЭМУЛЯТОР РЕЖИМОВ (РАЗГРУЖЕННЫЙ) ==================== -->
+      <!-- ==================== СЛАЙД 3: ЭМУЛЯТОР РЕЖИМОВ ==================== -->
       <section class="slide hidden" data-slide="3">
         <div class="slide-header">
           <h2 class="slide-title">Эмулятор режимов рекуперации</h2>
@@ -1391,7 +1613,7 @@
         </div>
 
         <div class="sim-grid">
-          <!-- ЛЕВАЯ/ОСНОВНАЯ ЗОНА: X-RAY АВТОМОБИЛЬ + БАР РАСПРЕДЕЛЕНИЯ + 4 ЧИСТЫХ ПОКАЗАТЕЛЯ -->
+          <!-- ЛЕВАЯ/ОСНОВНАЯ ЗОНА: СХЕМА АВТОМОБИЛЯ + БАЛАНС + 4 ПОКАЗАТЕЛЯ -->
           <div class="sim-visual-col">
             <div class="car-stage">
               <div id="ecuStatusLine" class="status-line">
@@ -1399,7 +1621,7 @@
                 <span id="ecuStatusText">Штатная рекуперация: PMSM → SiC MCU → ВВБ GB2</span>
               </div>
 
-              <svg id="xrayCarSvg" class="xray-svg" viewBox="0 0 720 245" xmlns="http://www.w3.org/2000/svg" aria-label="X-Ray схема Kia EV6">
+              <svg id="carSceneSvg" class="car-svg" viewBox="0 0 720 235" xmlns="http://www.w3.org/2000/svg" aria-label="Схема силовой установки Kia EV6">
                 <defs>
                   <linearGradient id="bodyGlass" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stop-color="#3b597d" stop-opacity="0.28"/>
@@ -1432,33 +1654,23 @@
                 <rect x="228" y="152" width="246" height="24" rx="4" fill="#101722" stroke="#3b516e" stroke-width="1.5"/>
                 <g id="battModulesGroup"></g>
 
-                <!-- Задний мотор PMSM + инвертор SiC MCU -->
+                <!-- Задний мотор PMSM -->
                 <rect x="132" y="150" width="54" height="32" rx="6" fill="#162536" stroke="#38bdf8" stroke-width="1.4"/>
                 <line x1="143" y1="152" x2="143" y2="180" stroke="#284663" stroke-width="1.2"/>
                 <line x1="155" y1="152" x2="155" y2="180" stroke="#284663" stroke-width="1.2"/>
                 <line x1="167" y1="152" x2="167" y2="180" stroke="#284663" stroke-width="1.2"/>
 
-                <rect x="148" y="125" width="58" height="21" rx="3" fill="#182b3a" stroke="#22c55e" stroke-width="1.3"/>
-                <text x="177" y="139" text-anchor="middle" font-size="9.5" font-weight="700" fill="#bbf7d0" font-family="Segoe UI, Roboto, Arial, sans-serif">SiC MCU</text>
-
-                <!-- Бустер IEB A1 и BMS A4 -->
-                <rect x="498" y="118" width="52" height="24" rx="3" fill="#261c1b" stroke="#f97316" stroke-width="1.3"/>
-                <text x="524" y="134" text-anchor="middle" font-size="9.5" font-weight="700" fill="#fed7aa" font-family="Segoe UI, Roboto, Arial, sans-serif">IEB A1</text>
-
-                <rect x="434" y="132" width="42" height="17" rx="3" fill="#182334" stroke="#38bdf8" stroke-width="1.2"/>
-                <text x="455" y="144" text-anchor="middle" font-size="8.5" font-weight="700" fill="#bae6fd" font-family="Segoe UI, Roboto, Arial, sans-serif">BMS A4</text>
-
                 <!-- Потоки энергии рекуперации -->
                 <g id="regenFlowGroup">
-                  <path d="M 178 162 L 178 146" fill="none" stroke="#22c55e" stroke-width="3.2" class="energy-stream"/>
-                  <path d="M 206 136 L 222 136 L 222 164 L 236 164" fill="none" stroke="#22c55e" stroke-width="3.4" class="energy-stream" marker-end="url(#flowArr)"/>
+                  <path d="M 184 148 L 184 128" fill="none" stroke="#22c55e" stroke-width="3" class="energy-stream"/>
+                  <path d="M 216 118 L 236 118 L 236 150" fill="none" stroke="#22c55e" stroke-width="3.2" class="energy-stream" marker-end="url(#flowArr)"/>
                   <path d="M 255 164 L 456 164" fill="none" stroke="#22c55e" stroke-width="2.2" class="energy-stream" opacity="0.8"/>
                 </g>
 
                 <!-- Гидравлические линии IEB -> суппорты -->
                 <g id="hydFlowGroup" opacity="0.16">
-                  <path d="M 524 142 L 524 170 L 538 170" fill="none" stroke="#f97316" stroke-width="2.5" class="hyd-stream" marker-end="url(#hydArr)"/>
-                  <path d="M 498 130 L 486 130 L 486 186 L 210 186 L 204 170" fill="none" stroke="#f97316" stroke-width="2.1" class="hyd-stream" marker-end="url(#hydArr)"/>
+                  <path d="M 526 129 L 526 146" fill="none" stroke="#f97316" stroke-width="2.4" class="hyd-stream" marker-end="url(#hydArr)"/>
+                  <path d="M 496 119 L 480 119 L 480 186 L 210 186 L 204 172" fill="none" stroke="#f97316" stroke-width="2.1" class="hyd-stream" marker-end="url(#hydArr)"/>
                 </g>
 
                 <!-- Полупрозрачный кузов Kia EV6 -->
@@ -1467,6 +1679,16 @@
                 <path d="M 180 92 Q 226 54 298 50 L 392 50 Q 450 55 486 92 Z"
                       fill="rgba(255, 255, 255, 0.03)" stroke="#4c6482" stroke-width="1.2"/>
                 <line x1="336" y1="50" x2="328" y2="92" stroke="#4c6482" stroke-width="1.6"/>
+
+                <!-- Шильдики узлов -->
+                <rect x="156" y="108" width="60" height="20" rx="3" fill="#13212e" stroke="#22c55e" stroke-width="1.3"/>
+                <text x="186" y="121.5" text-anchor="middle" font-size="9.5" font-weight="700" fill="#bbf7d0" font-family="Segoe UI, Roboto, Arial, sans-serif">SiC MCU</text>
+
+                <rect x="418" y="124" width="48" height="19" rx="3" fill="#141e2e" stroke="#38bdf8" stroke-width="1.2"/>
+                <text x="442" y="137" text-anchor="middle" font-size="9" font-weight="700" fill="#bae6fd" font-family="Segoe UI, Roboto, Arial, sans-serif">BMS A4</text>
+
+                <rect x="496" y="109" width="54" height="20" rx="3" fill="#241816" stroke="#f97316" stroke-width="1.3"/>
+                <text x="523" y="122.5" text-anchor="middle" font-size="9.5" font-weight="700" fill="#fed7aa" font-family="Segoe UI, Roboto, Arial, sans-serif">IEB A1</text>
 
                 <!-- Стоп-сигнал и фара -->
                 <path id="stopLight" d="M 90 126 Q 112 120 142 109"
@@ -1518,22 +1740,22 @@
               </div>
             </div>
 
-            <!-- Единая спокойная строка из 4 ключевых OBD-параметров -->
+            <!-- Сетка 4 ключевых показателей -->
             <div class="telemetry-strip">
               <div class="tel-item">
                 <div class="tel-label">Мощность рекуперации</div>
-                <div id="outPower" class="tel-main green num">−68,9 кВт</div>
-                <div id="outCurrent" class="tel-extra num">Ток ВВБ: −92,9 А</div>
+                <div id="outPower" class="tel-main green num">−46,0 кВт</div>
+                <div id="outCurrent" class="tel-extra num">Ток ВВБ: −62,4 А</div>
               </div>
               <div class="tel-item">
-                <div class="tel-label">Напряжение ВВБ</div>
+                <div class="tel-label">Напряжение ВВБ (GB2)</div>
                 <div id="outVolt" class="tel-main blue num">742 В</div>
                 <div id="outTemp" class="tel-extra num">Температура: +24 °C</div>
               </div>
               <div class="tel-item">
                 <div class="tel-label">Момент PMSM</div>
-                <div id="outTorque" class="tel-main num">−116 Н·м</div>
-                <div id="outDecel" class="tel-extra num">Замедление: 0,18 g</div>
+                <div id="outTorque" class="tel-main green num">−63 Н·м</div>
+                <div id="outDecel" class="tel-extra num">Замедление: 0,12 g</div>
               </div>
               <div class="tel-item">
                 <div class="tel-label">Давление IEB</div>
@@ -1543,32 +1765,62 @@
             </div>
           </div>
 
-          <!-- ПРАВАЯ КОЛОНКА (на ПК/мультиборде под правую руку): ПРИБОРЫ УПРАВЛЕНИЯ -->
+          <!-- ПРАВАЯ ПАНЕЛЬ УПРАВЛЕНИЯ -->
           <div class="sim-controls-col no-swipe">
-            <!-- Круглый спидометр -->
+            <!-- Интерактивный спидометр -->
             <div class="dial-section">
               <svg id="speedDial" class="speed-dial-svg" viewBox="0 0 220 162" xmlns="http://www.w3.org/2000/svg" aria-label="Спидометр">
-                <path id="speedBgArc" fill="none" stroke="#232c3d" stroke-width="13" stroke-linecap="round"/>
-                <path id="speedFgArc" fill="none" stroke="#38bdf8" stroke-width="13" stroke-linecap="round"/>
+                <path id="speedBgArc" d="" fill="none" stroke="#232c3d" stroke-width="11" stroke-linecap="round"/>
                 <g id="speedTicks"></g>
-                <circle id="speedKnob" cx="110" cy="30" r="6" fill="#ffffff" stroke="#38bdf8" stroke-width="2.5"/>
-                <text id="dialSpeedVal" x="110" y="98" text-anchor="middle" font-size="38" font-weight="700" fill="#ffffff" font-family="Segoe UI, Roboto, Arial, sans-serif">72</text>
-                <text x="110" y="118" text-anchor="middle" font-size="12" font-weight="600" fill="#94a3b8" font-family="Segoe UI, Roboto, Arial, sans-serif">км/ч</text>
+                <path id="speedValArc" d="" fill="none" stroke="#38bdf8" stroke-width="11" stroke-linecap="round"/>
+                <circle id="speedKnob" cx="110" cy="24" r="7" fill="#ffffff" stroke="#38bdf8" stroke-width="2.5"/>
+                <text id="speedVal" x="110" y="102" text-anchor="middle" font-size="38" font-weight="700" fill="#ffffff" class="num" font-family="Segoe UI, Roboto, Arial, sans-serif">72</text>
+                <text x="110" y="122" text-anchor="middle" font-size="12" fill="#94a3b8" font-family="Segoe UI, Roboto, Arial, sans-serif">км/ч</text>
               </svg>
               <div class="speed-nudges">
-                <button type="button" class="nudge-btn num" onclick="stepSpeed(-20)">−20</button>
+                <button type="button" class="nudge-btn num" onclick="stepSpeed(-10)">−10</button>
                 <button type="button" class="nudge-btn num" onclick="setSpeedDirect(0)">0</button>
-                <button type="button" class="nudge-btn num" onclick="stepSpeed(20)">+20</button>
+                <button type="button" class="nudge-btn num" onclick="stepSpeed(10)">+10</button>
               </div>
             </div>
 
-            <!-- Педаль тормоза -->
+            <!-- Педаль тормоза (вид сбоку) -->
             <div class="ctrl-group">
               <div class="ctrl-row-head">
                 <span>Педаль тормоза</span>
-                <b id="vBrake" class="num">35%</b>
+                <span style="font-size:11.5px;color:var(--text-mute);">Тяните слева → направо</span>
               </div>
-              <div id="brakeBar" class="seg-bar" title="Нажмите или проведите для изменения тормозного усилия"></div>
+              <div id="brakePedalBox" class="pedal-box" title="Нажмите и двигайте мышь слева направо для нажатия педали">
+                <svg id="brakePedalSvg" class="pedal-svg" viewBox="0 0 260 112" xmlns="http://www.w3.org/2000/svg" aria-label="Педаль тормоза">
+                  <line x1="16" y1="10" x2="246" y2="10" stroke="#334155" stroke-width="2"/>
+                  <path d="M 74 10 L 74 28 Q 74 36 86 36 L 98 36 Q 110 36 110 28 L 110 10 Z" fill="#1b2433" stroke="#475569" stroke-width="1.3"/>
+                  <line x1="168" y1="10" x2="168" y2="106" stroke="#2d3a4f" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+                  <rect x="174" y="38" width="72" height="34" rx="5" fill="#141c28" stroke="#4b607a" stroke-width="1.4"/>
+                  <rect id="pedalHydGlow" x="208" y="42" width="34" height="26" rx="2" fill="#38bdf8" opacity="0.22"/>
+                  <text x="210" y="32" text-anchor="middle" font-size="8.5" font-weight="600" fill="#94a3b8" font-family="Segoe UI, Arial, sans-serif">Цилиндр IEB</text>
+
+                  <rect id="pedalPiston" x="180" y="43" width="14" height="24" rx="2" fill="#38bdf8" stroke="#bae6fd" stroke-width="1"/>
+                  <line id="pedalRod" x1="78" y1="55" x2="180" y2="55" stroke="#94a3b8" stroke-width="3.2" stroke-linecap="round"/>
+
+                  <path d="M 48 97 Q 90 105 134 96" fill="none" stroke="#334155" stroke-width="1.3" stroke-dasharray="3,3"/>
+                  <polygon points="136,95 129,92 130,99" fill="#38bdf8"/>
+
+                  <g id="pedalArmGroup" transform="rotate(0, 92, 22)">
+                    <path d="M 88 22 L 96 22 L 86 58 L 68 92 L 58 88 L 76 54 Z" fill="rgba(56, 189, 248, 0.16)" stroke="#38bdf8" stroke-width="1.6" stroke-linejoin="round"/>
+                    <rect x="49" y="83" width="23" height="9" rx="3" transform="rotate(24, 60, 88)" fill="#1e293b" stroke="#e2e8f0" stroke-width="1.6"/>
+                    <circle cx="78" cy="55" r="3.6" fill="#121720" stroke="#e2e8f0" stroke-width="1.4"/>
+                  </g>
+
+                  <circle cx="92" cy="22" r="5.5" fill="#121720" stroke="#38bdf8" stroke-width="1.8"/>
+                  <circle cx="92" cy="22" r="2" fill="#e2e8f0"/>
+                </svg>
+
+                <div class="pedal-readout">
+                  <span>Уровень нажатия</span>
+                  <b id="vBrake" class="num">35%</b>
+                </div>
+              </div>
             </div>
 
             <!-- Подрулевые лепестки -->
@@ -1589,7 +1841,7 @@
             <!-- Заряд и температура ВВБ -->
             <div class="ctrl-group">
               <div class="ctrl-row-head">
-                <span>Заряд ВВБ (SoC)</span>
+                <span>Заряд ВВБ</span>
                 <b id="vSoc" class="num" style="color:var(--regen);">65%</b>
               </div>
               <div id="socBar" class="seg-bar" title="Нажмите или проведите для изменения заряда батареи"></div>
@@ -1696,9 +1948,20 @@
     </nav>
   </div>
 
+  <!-- Полноэкранный просмотр реального чертежа -->
+  <div id="schemeModal" class="scheme-modal hidden" onclick="if (event.target === this) closeSchemeModal()">
+    <div class="scheme-modal-bar">
+      <span>Принципиальная электрическая схема тормозной системы</span>
+      <button type="button" class="scheme-modal-close" onclick="closeSchemeModal()">Закрыть ✕</button>
+    </div>
+    <div class="scheme-modal-img-wrap">
+      <img id="schemeModalImg" src="" alt="Чертёж в полном размере">
+    </div>
+  </div>
+
   <script>
     // =========================================================================
-    // 1. НАВИГАЦИЯ (СИНХРОНИЗАЦИЯ ПК-САЙДБАРА И МОБИЛЬНЫХ ВКЛАДОК)
+    // 1. НАВИГАЦИЯ
     // =========================================================================
     const TOTAL_SLIDES = 4;
     let currentSlide = 1;
@@ -1729,6 +1992,10 @@
     }
 
     document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeSchemeModal();
+        return;
+      }
       if (e.key === 'ArrowRight' || e.key === 'PageDown') {
         e.preventDefault();
         changeSlide(1);
@@ -1737,6 +2004,49 @@
         changeSlide(-1);
       }
     });
+
+    // =========================================================================
+    // 1.1. ЗАГРУЗКА И ПРОСМОТР РЕАЛЬНОГО ЧЕРТЕЖА НА 1-М СЛАЙДЕ
+    // =========================================================================
+    function handleSchemeErr(img) {
+      const step = img.dataset.step || 'png';
+      if (step === 'png') {
+        img.dataset.step = 'jpg';
+        img.src = 'scheme.jpg';
+      } else if (step === 'jpg') {
+        img.dataset.step = 'jpeg';
+        img.src = 'scheme.jpeg';
+      } else {
+        img.classList.add('hidden');
+        document.getElementById('realSchemeFallback').classList.remove('hidden');
+        document.getElementById('realSchemeBox').classList.add('is-empty');
+        document.getElementById('cadZoomBtn').classList.add('hidden');
+      }
+    }
+
+    function loadLocalScheme(event) {
+      const file = event.target && event.target.files && event.target.files[0];
+      if (!file) return;
+      const img = document.getElementById('realSchemeImg');
+      img.dataset.step = 'custom';
+      img.src = URL.createObjectURL(file);
+      img.classList.remove('hidden');
+      document.getElementById('realSchemeFallback').classList.add('hidden');
+      document.getElementById('realSchemeBox').classList.remove('is-empty');
+      document.getElementById('cadZoomBtn').classList.remove('hidden');
+    }
+
+    function openSchemeModal() {
+      const img = document.getElementById('realSchemeImg');
+      if (!img || img.classList.contains('hidden')) return;
+      document.getElementById('schemeModalImg').src = img.src;
+      document.getElementById('schemeModal').classList.remove('hidden');
+    }
+
+    function closeSchemeModal() {
+      const modal = document.getElementById('schemeModal');
+      if (modal) modal.classList.add('hidden');
+    }
 
     // Свайп на телефоне/планшете
     let touchStartX = 0, touchStartY = 0, touchIgnored = false;
@@ -1789,7 +2099,7 @@
         title: 'Блок A4 (BDU / BMS)',
         points: [
           'Управляет высоковольтными контакторами (BDU).',
-          'Ограничивает ток заряда при заряде > 90% и на морозе.',
+          'Ограничивает ток заряда при уровне выше 90% и на морозе.',
           'Передаёт допустимую мощность рекуперации бустеру A1 по CAN.'
         ]
       },
@@ -1797,7 +2107,7 @@
         group: 'Накопитель энергии',
         title: 'Тяговая ВВБ GB2 (800 В)',
         points: [
-          'Рабочий диапазон 660–803 В (около 742 В при 65% SoC).',
+          'Рабочий диапазон 660–803 В (около 742 В при заряде 65%).',
           'Принимает импульсы до 175 кВт (~288 кДж при торможении с 72 км/ч).',
           'Тепловые потери в 4 раза ниже, чем у батарей 400 В.'
         ]
@@ -1807,7 +2117,7 @@
         title: 'Бустер A1 (IEB) и суппорты',
         points: [
           'Электрогидравлический блок с датчиком хода педали тормоза.',
-          'Плавно дожимает колодками при морозе, 98% SoC и > 0,35 g.',
+          'Плавно дожимает колодками при морозе, заряде 98% и > 0,35 g.',
           'Сохраняет механический аварийный контур при потере питания.'
         ]
       },
@@ -1911,15 +2221,9 @@
     }
 
     function buildSegmentedBars() {
-      const bBar = document.getElementById('brakeBar');
       const sBar = document.getElementById('socBar');
-      bBar.innerHTML = '';
       sBar.innerHTML = '';
       for (let i = 0; i < 20; i++) {
-        const d1 = document.createElement('div');
-        d1.className = 'seg';
-        bBar.appendChild(d1);
-
         const d2 = document.createElement('div');
         d2.className = 'seg';
         sBar.appendChild(d2);
@@ -1935,7 +2239,7 @@
         r.setAttribute('height', '16');
         r.setAttribute('rx', '2');
         r.setAttribute('fill', '#1c2636');
-        r.setAttribute('class', 'xray-cell');
+        r.setAttribute('class', 'batt-cell');
         modG.appendChild(r);
       }
     }
@@ -1987,6 +2291,31 @@
       el.addEventListener('pointermove', (e) => { if (dragging) applyX(e); });
       el.addEventListener('pointerup', () => { dragging = false; });
       el.addEventListener('pointercancel', () => { dragging = false; });
+    }
+
+    function bindPedalInteraction() {
+      const box = document.getElementById('brakePedalBox');
+      let dragging = false;
+
+      function applyPedalX(e) {
+        const rect = box.getBoundingClientRect();
+        const raw = (e.clientX - rect.left) / rect.width;
+        const norm = (raw - 0.14) / 0.68;
+        sim.brake = Math.max(0, Math.min(100, Math.round(norm * 100)));
+        clearPresetHighlight();
+        updateSim();
+      }
+
+      box.addEventListener('pointerdown', (e) => {
+        dragging = true;
+        box.setPointerCapture(e.pointerId);
+        applyPedalX(e);
+      });
+      box.addEventListener('pointermove', (e) => {
+        if (dragging) applyPedalX(e);
+      });
+      box.addEventListener('pointerup', () => { dragging = false; });
+      box.addEventListener('pointercancel', () => { dragging = false; });
     }
 
     function stepSpeed(delta) {
@@ -2043,23 +2372,53 @@
       const { speed, brake, soc, level, isCold } = sim;
 
       // 1. Спидометр
+      document.getElementById('speedVal').textContent = String(speed);
       const endDeg = START_DEG + (speed / 140) * SWEEP_DEG;
-      document.getElementById('dialSpeedVal').textContent = String(speed);
-      document.getElementById('speedFgArc').setAttribute('d', speed <= 0 ? '' : describeArc(DIAL_CX, DIAL_CY, DIAL_R, START_DEG, endDeg));
-      const knobPt = polarToXY(DIAL_CX, DIAL_CY, DIAL_R, endDeg);
-      document.getElementById('speedKnob').setAttribute('cx', knobPt.x.toFixed(1));
-      document.getElementById('speedKnob').setAttribute('cy', knobPt.y.toFixed(1));
-
-      // 2. Педаль тормоза
-      document.getElementById('vBrake').textContent = `${brake}%`;
-      const bCells = document.getElementById('brakeBar').children;
-      const bLit = Math.round((brake / 100) * bCells.length);
-      for (let i = 0; i < bCells.length; i++) {
-        bCells[i].style.background = i < bLit ? (i >= 14 ? '#ef4444' : (i >= 8 ? '#f97316' : '#38bdf8')) : '#232c3d';
+      const valArc = document.getElementById('speedValArc');
+      if (speed > 0) {
+        valArc.setAttribute('d', describeArc(DIAL_CX, DIAL_CY, DIAL_R, START_DEG, endDeg));
+      } else {
+        valArc.setAttribute('d', '');
       }
+      const knobPos = polarToXY(DIAL_CX, DIAL_CY, DIAL_R, endDeg);
+      document.getElementById('speedKnob').setAttribute('cx', knobPos.x.toFixed(1));
+      document.getElementById('speedKnob').setAttribute('cy', knobPos.y.toFixed(1));
+
+      // 2. Педаль тормоза (поворот вокруг верхней оси 92,22 слева направо)
+      const vBrakeEl = document.getElementById('vBrake');
+      vBrakeEl.textContent = `${brake}%`;
+      const pedalColor = brake >= 75 ? '#ef4444' : (brake >= 40 ? '#f97316' : '#38bdf8');
+      vBrakeEl.style.color = brake > 0 ? pedalColor : '#94a3b8';
+
+      const rotDeg = (brake / 100) * 44;
+      document.getElementById('pedalArmGroup').setAttribute('transform', `rotate(${(-rotDeg).toFixed(1)}, 92, 22)`);
+
+      const rad = (-rotDeg * Math.PI) / 180;
+      const pinX = 92 + (-14) * Math.cos(rad) - 33 * Math.sin(rad);
+      const pinY = 22 + (-14) * Math.sin(rad) + 33 * Math.cos(rad);
+      const stroke = Math.max(0, pinX - 78);
+      const pistonX = 180 + stroke * 1.15;
+
+      const rodEl = document.getElementById('pedalRod');
+      rodEl.setAttribute('x1', pinX.toFixed(1));
+      rodEl.setAttribute('y1', pinY.toFixed(1));
+      rodEl.setAttribute('x2', pistonX.toFixed(1));
+      rodEl.setAttribute('y2', '55');
+
+      const pistonEl = document.getElementById('pedalPiston');
+      pistonEl.setAttribute('x', pistonX.toFixed(1));
+      pistonEl.setAttribute('fill', pedalColor);
+
+      const glowEl = document.getElementById('pedalHydGlow');
+      const glowX = pistonX + 14;
+      const glowW = Math.max(6, 242 - glowX);
+      glowEl.setAttribute('x', glowX.toFixed(1));
+      glowEl.setAttribute('width', glowW.toFixed(1));
+      glowEl.setAttribute('fill', pedalColor);
+      glowEl.setAttribute('opacity', (0.14 + (brake / 100) * 0.58).toFixed(2));
 
       // 3. Лепестки
-      const lvlNames = ['Ур. 0 (накат)', 'Ур. 1', 'Ур. 2', 'Ур. 3', 'i-Pedal'];
+      const lvlNames = ['Ур. 0 (выкл.)', 'Ур. 1', 'Ур. 2', 'Ур. 3', 'i-Pedal'];
       document.getElementById('vPaddleTxt').textContent = lvlNames[level];
       document.querySelectorAll('#paddleLevels .p-btn').forEach(el => {
         el.classList.toggle('on', parseInt(el.getAttribute('data-lvl'), 10) === level);
@@ -2091,23 +2450,28 @@
       let bmsLimitKw = 175;
       let limitReason = 'ok';
 
-      if (soc >= 95) {
-        bmsLimitKw = Math.max(0, (100 - soc) * 4);
-        limitReason = 'fullSoc';
-      } else if (soc > 90) {
-        bmsLimitKw = 175 * ((96 - soc) / 6);
-        limitReason = 'fullSoc';
-      }
-      if (isCold) {
-        bmsLimitKw = Math.min(bmsLimitKw, 22);
-        limitReason = 'cold';
-      }
-      if (speed < 7 && speed > 0) {
+      if (level === 0) {
         bmsLimitKw = 0;
-        limitReason = 'lowSpeed';
-      }
-      if (brake >= 75 && speed > 0) {
-        limitReason = 'panic';
+        limitReason = 'regenOff';
+      } else {
+        if (soc >= 95) {
+          bmsLimitKw = Math.max(0, (100 - soc) * 4);
+          limitReason = 'fullSoc';
+        } else if (soc > 90) {
+          bmsLimitKw = 175 * ((96 - soc) / 6);
+          limitReason = 'fullSoc';
+        }
+        if (isCold) {
+          bmsLimitKw = Math.min(bmsLimitKw, 22);
+          limitReason = 'cold';
+        }
+        if (speed < 7 && speed > 0) {
+          bmsLimitKw = 0;
+          limitReason = 'lowSpeed';
+        }
+        if (brake >= 75 && speed > 0) {
+          limitReason = 'panic';
+        }
       }
 
       let regenKw = 0, hydKw = 0;
@@ -2122,7 +2486,6 @@
       const pctRegen = totalKw > 0.1 ? Math.round((regenKw / totalKw) * 100) : 0;
       const pctHyd   = totalKw > 0.1 ? (100 - pctRegen) : 0;
 
-      // Реалистичное напряжение 192s батареи (~742 В при 65% SoC)
       let uOc = 690;
       if (soc <= 20) uOc = 640 + soc * 2.5;
       else if (soc <= 85) uOc = 690 + (soc - 20) * 1.06;
@@ -2159,8 +2522,8 @@
       document.getElementById('outPress').textContent   = `${fmt(hydBar, 1)} бар`;
       document.getElementById('outEnergy').textContent  = `Возврат до 0: ${retKj} кДж`;
 
-      // 7. Анимация X-Ray узлов
-      const xCells = document.querySelectorAll('#battModulesGroup .xray-cell');
+      // 7. Анимация узлов
+      const xCells = document.querySelectorAll('#battModulesGroup .batt-cell');
       const litModules = Math.max(1, Math.round((soc / 100) * xCells.length));
       xCells.forEach((cell, idx) => {
         cell.setAttribute('fill', idx < litModules ? socColor : '#1c2636');
@@ -2193,6 +2556,9 @@
       } else if (brake === 0 && level === 0) {
         statusEl.className = 'status-line neutral';
         statusTxt.textContent = 'Свободный накат (Ур. 0) — нулевой ток рекуперации';
+      } else if (level === 0 && brake > 0) {
+        statusEl.className = 'status-line warn';
+        statusTxt.textContent = 'Рекуперация отключена (Ур. 0): торможение только гидравликой IEB A1';
       } else if (brake === 0 && level > 0) {
         statusEl.className = 'status-line info';
         statusTxt.textContent = `Рекуперация лепестками (${lvlNames[level]}) без нажатия тормоза`;
@@ -2263,7 +2629,7 @@
       buildSpeedDialStatic();
       buildSegmentedBars();
       bindDialInteraction();
-      bindBarInteraction('brakeBar', 0, 100, (v) => { sim.brake = v; });
+      bindPedalInteraction();
       bindBarInteraction('socBar', 10, 100, (v) => { sim.soc = v; });
 
       goToSlide(1);
