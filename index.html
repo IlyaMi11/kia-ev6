@@ -9,8 +9,7 @@
   <style>
     /* =====================================================================
        АВТОНОМНАЯ ПРЕЗЕНТАЦИЯ И ЭМУЛЯТОР KIA EV6 (100% БЕЗ ИНТЕРНЕТА)
-       Две раздельные эргономики:
-       1) ПК и Windows-мультиборд (>= 1024px): левое меню, экран 100vh без прокрутки
+       1) ПК и Windows-мультиборд (>= 1024px): левое меню, экран 100vh
        2) Телефон / планшет (< 1024px): компактная шапка и нижние вкладки
        ===================================================================== */
     :root {
@@ -59,8 +58,14 @@
       touch-action: manipulation;
     }
 
-    .hidden { display: none !important; }
-    .num { font-variant-numeric: tabular-nums; }
+    .hidden {
+      display: none !important;
+      pointer-events: none !important;
+    }
+
+    .num {
+      font-variant-numeric: tabular-nums;
+    }
 
     /* =====================================================================
        КАРКАС ПРИЛОЖЕНИЯ
@@ -124,13 +129,13 @@
       flex: 1;
       display: flex;
       flex-direction: column;
-      animation: slideFadeIn 0.25s ease-out;
+      animation: slideFadeIn 0.22s ease-out;
     }
 
     @keyframes slideFadeIn {
       from {
         opacity: 0;
-        transform: translateY(6px);
+        transform: translateY(5px);
       }
       to {
         opacity: 1;
@@ -157,7 +162,7 @@
       background: transparent;
       color: var(--text-sec);
       border-radius: 6px;
-      padding: 7px 4px;
+      padding: 8px 4px;
       font-size: 12px;
       font-weight: 600;
       cursor: pointer;
@@ -335,7 +340,7 @@
       border: 1px solid var(--border-strong);
       color: var(--accent);
       border-radius: 5px;
-      padding: 3px 9px;
+      padding: 4px 10px;
       font-size: 11.5px;
       font-weight: 600;
     }
@@ -740,7 +745,6 @@
       to   { stroke-dashoffset: 0; }
     }
 
-    /* Полоса баланса рекуперации и гидравлики */
     .split-box {
       background: var(--bg-surface);
       border: 1px solid var(--border);
@@ -779,7 +783,6 @@
       transition: width 0.2s ease;
     }
 
-    /* Сетка 4 блоков телеметрии (2x2 на телефоне, 4x1 на ПК) */
     .telemetry-strip {
       background: var(--bg-surface);
       border: 1px solid var(--border);
@@ -828,7 +831,6 @@
       color: var(--text-mute);
     }
 
-    /* Панель управления */
     .sim-controls-col {
       background: var(--bg-surface);
       border: 1px solid var(--border);
@@ -923,7 +925,6 @@
       transition: background-color 0.1s ease;
     }
 
-    /* Интерактивная педаль тормоза (вид сбоку) */
     .pedal-box {
       background: #121720;
       border: 1px solid var(--border-strong);
@@ -1509,8 +1510,7 @@
                    alt="Принципиальная электрическая схема тормозной системы Kia EV6"
                    draggable="false"
                    oncontextmenu="return false;"
-                   onclick="openSchemeModal()"
-                   onerror="handleSchemeErr(this)">
+                   onclick="openSchemeModal()">
 
               <div id="realSchemeFallback" class="real-scheme-fallback hidden">
                 <div>Положите картинку чертежа <code>scheme.png</code> (или <code>scheme.jpg</code>) в репозиторий рядом с <code>index.html</code></div>
@@ -1682,7 +1682,6 @@
         </div>
 
         <div class="sim-grid">
-          <!-- ЛЕВАЯ/ОСНОВНАЯ ЗОНА: СХЕМА АВТОМОБИЛЯ + БАЛАНС + 4 ПОКАЗАТЕЛЯ -->
           <div class="sim-visual-col">
             <div class="car-stage">
               <div id="ecuStatusLine" class="status-line">
@@ -1836,7 +1835,6 @@
 
           <!-- ПРАВАЯ ПАНЕЛЬ УПРАВЛЕНИЯ -->
           <div class="sim-controls-col no-swipe">
-            <!-- Интерактивный спидометр -->
             <div class="dial-section">
               <svg id="speedDial" class="speed-dial-svg" viewBox="0 0 220 162" xmlns="http://www.w3.org/2000/svg" aria-label="Спидометр">
                 <path id="speedBgArc" d="" fill="none" stroke="#232c3d" stroke-width="11" stroke-linecap="round"/>
@@ -2040,28 +2038,36 @@
 
   <script>
     // =========================================================================
-    // 1. НАВИГАЦИЯ
+    // 1. НАВИГАЦИЯ ПО СЛАЙДАМ
     // =========================================================================
     const TOTAL_SLIDES = 4;
     let currentSlide = 1;
 
     function goToSlide(n) {
       currentSlide = Math.max(1, Math.min(TOTAL_SLIDES, n));
-      document.querySelectorAll('.slide').forEach(sec => {
+      document.querySelectorAll('.slide').forEach(function (sec) {
         const idx = parseInt(sec.getAttribute('data-slide'), 10);
         sec.classList.toggle('hidden', idx !== currentSlide);
       });
 
-      document.getElementById('mobileSlideNum').textContent = `${currentSlide} / ${TOTAL_SLIDES}`;
-      document.getElementById('deskPrev').disabled = (currentSlide === 1);
-      document.getElementById('deskNext').disabled = (currentSlide === TOTAL_SLIDES);
+      const mNum = document.getElementById('mobileSlideNum');
+      if (mNum) mNum.textContent = currentSlide + ' / ' + TOTAL_SLIDES;
 
-      document.querySelectorAll('[data-tab]').forEach(btn => {
+      const dPrev = document.getElementById('deskPrev');
+      const dNext = document.getElementById('deskNext');
+      if (dPrev) dPrev.disabled = (currentSlide === 1);
+      if (dNext) dNext.disabled = (currentSlide === TOTAL_SLIDES);
+
+      document.querySelectorAll('[data-tab]').forEach(function (btn) {
         const isCur = parseInt(btn.getAttribute('data-tab'), 10) === currentSlide;
         btn.classList.toggle('active', isCur);
       });
 
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      try {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } catch (e) {
+        window.scrollTo(0, 0);
+      }
       const ws = document.getElementById('stage');
       if (ws) ws.scrollTop = 0;
     }
@@ -2070,8 +2076,9 @@
       goToSlide(currentSlide + delta);
     }
 
-    document.addEventListener('keydown', (e) => {
-      const modalOpen = !document.getElementById('schemeModal').classList.contains('hidden');
+    document.addEventListener('keydown', function (e) {
+      const modal = document.getElementById('schemeModal');
+      const modalOpen = modal && !modal.classList.contains('hidden');
       if (e.key === 'Escape') {
         closeSchemeModal();
         return;
@@ -2092,50 +2099,74 @@
     });
 
     // =========================================================================
-    // 1.1. ЗАГРУЗКА И ЧЁТКИЙ ПРОСМОТР РЕАЛЬНОГО ЧЕРТЕЖА (ЗУМ + ПЕРЕМЕЩЕНИЕ)
+    // 1.1. ЗАГРУЗКА И ЧЁТКИЙ ПРОСМОТР ЧЕРТЕЖА (ЗУМ + ПЕРЕМЕЩЕНИЕ)
     // =========================================================================
     let schemeZoom = 1;
     let schemeMinZoom = 0.2;
     let schemeNatW = 0;
     let schemeNatH = 0;
 
-    function handleSchemeErr(img) {
-      const step = img.dataset.step || 'png';
-      if (step === 'png') {
-        img.dataset.step = 'jpg';
-        img.src = 'scheme.jpg';
-      } else if (step === 'jpg') {
-        img.dataset.step = 'jpeg';
-        img.src = 'scheme.jpeg';
-      } else {
-        img.classList.add('hidden');
-        document.getElementById('realSchemeFallback').classList.remove('hidden');
-        document.getElementById('realSchemeBox').classList.add('is-empty');
-        document.getElementById('cadZoomBtn').classList.add('hidden');
+    function showSchemeFallback() {
+      const img = document.getElementById('realSchemeImg');
+      const fb = document.getElementById('realSchemeFallback');
+      const box = document.getElementById('realSchemeBox');
+      const btn = document.getElementById('cadZoomBtn');
+      if (img) img.classList.add('hidden');
+      if (fb) fb.classList.remove('hidden');
+      if (box) box.classList.add('is-empty');
+      if (btn) btn.classList.add('hidden');
+    }
+
+    function initSchemeImage() {
+      const img = document.getElementById('realSchemeImg');
+      if (!img) return;
+      img.dataset.step = 'png';
+
+      function tryNextFormat() {
+        const step = img.dataset.step || 'png';
+        if (step === 'png') {
+          img.dataset.step = 'jpg';
+          img.src = 'scheme.jpg';
+        } else if (step === 'jpg') {
+          img.dataset.step = 'jpeg';
+          img.src = 'scheme.jpeg';
+        } else {
+          showSchemeFallback();
+        }
+      }
+
+      img.addEventListener('error', tryNextFormat);
+      if (img.complete && img.naturalWidth === 0) {
+        tryNextFormat();
       }
     }
 
     function loadLocalScheme(event) {
-      const file = event.target && event.target.files && event.target.files[0];
+      const file = event && event.target && event.target.files && event.target.files[0];
       if (!file) return;
       const img = document.getElementById('realSchemeImg');
+      const fb = document.getElementById('realSchemeFallback');
+      const box = document.getElementById('realSchemeBox');
+      const btn = document.getElementById('cadZoomBtn');
+      if (!img) return;
       img.dataset.step = 'custom';
       img.src = URL.createObjectURL(file);
       img.classList.remove('hidden');
-      document.getElementById('realSchemeFallback').classList.add('hidden');
-      document.getElementById('realSchemeBox').classList.remove('is-empty');
-      document.getElementById('cadZoomBtn').classList.remove('hidden');
+      if (fb) fb.classList.add('hidden');
+      if (box) box.classList.remove('is-empty');
+      if (btn) btn.classList.remove('hidden');
     }
 
     function applySchemeZoom(newZoom, focusClientX, focusClientY) {
       if (!schemeNatW || !schemeNatH) return;
       const vp = document.getElementById('schemeViewport');
       const modalImg = document.getElementById('schemeModalImg');
+      const lbl = document.getElementById('schemeZoomLabel');
+      if (!vp || !modalImg) return;
 
       const clamped = Math.max(schemeMinZoom, Math.min(4, newZoom));
       const oldZoom = schemeZoom || clamped;
 
-      // Сохраняем точку фокуса при зуме
       const rect = vp.getBoundingClientRect();
       const fx = (focusClientX != null) ? (focusClientX - rect.left) : (vp.clientWidth / 2);
       const fy = (focusClientY != null) ? (focusClientY - rect.top) : (vp.clientHeight / 2);
@@ -2144,9 +2175,9 @@
       const contentY = vp.scrollTop + fy;
 
       schemeZoom = clamped;
-      modalImg.style.width = `${Math.round(schemeNatW * schemeZoom)}px`;
-      modalImg.style.height = `${Math.round(schemeNatH * schemeZoom)}px`;
-      document.getElementById('schemeZoomLabel').textContent = `${Math.round(schemeZoom * 100)}%`;
+      modalImg.style.width = Math.round(schemeNatW * schemeZoom) + 'px';
+      modalImg.style.height = Math.round(schemeNatH * schemeZoom) + 'px';
+      if (lbl) lbl.textContent = Math.round(schemeZoom * 100) + '%';
 
       const ratio = schemeZoom / oldZoom;
       vp.scrollLeft = Math.max(0, Math.round(contentX * ratio - fx));
@@ -2161,11 +2192,11 @@
     function setSchemeFit() {
       if (!schemeNatW || !schemeNatH) return;
       const vp = document.getElementById('schemeViewport');
+      if (!vp) return;
       const availW = Math.max(200, vp.clientWidth - 28);
       const availH = Math.max(200, vp.clientHeight - 28);
       const fit = Math.min(availW / schemeNatW, availH / schemeNatH);
       schemeMinZoom = Math.min(0.2, fit * 0.6);
-      // Не растягиваем мелкий снимок выше 100%, чтобы не появлялось мыло
       applySchemeZoom(Math.min(1, fit));
       vp.scrollLeft = 0;
       vp.scrollTop = 0;
@@ -2178,17 +2209,17 @@
 
     function openSchemeModal() {
       const img = document.getElementById('realSchemeImg');
-      if (!img || img.classList.contains('hidden')) return;
       const modal = document.getElementById('schemeModal');
       const modalImg = document.getElementById('schemeModalImg');
+      if (!img || !modal || !modalImg || img.classList.contains('hidden')) return;
 
       modal.classList.remove('hidden');
 
-      const initSizing = () => {
+      function initSizing() {
         schemeNatW = modalImg.naturalWidth || img.naturalWidth || 1200;
         schemeNatH = modalImg.naturalHeight || img.naturalHeight || 850;
-        requestAnimationFrame(() => setSchemeFit());
-      };
+        requestAnimationFrame(function () { setSchemeFit(); });
+      }
 
       if (modalImg.src !== img.src) {
         modalImg.onload = initSizing;
@@ -2207,65 +2238,67 @@
 
     function bindSchemeViewerInteraction() {
       const vp = document.getElementById('schemeViewport');
+      if (!vp) return;
       let panning = false;
       let startX = 0, startY = 0, startScrollL = 0, startScrollT = 0;
 
-      // Масштабирование колёсиком мыши в точку курсора
-      vp.addEventListener('wheel', (e) => {
+      vp.addEventListener('wheel', function (e) {
         e.preventDefault();
         const dir = e.deltaY < 0 ? 0.2 : -0.2;
         zoomScheme(dir, e.clientX, e.clientY);
       }, { passive: false });
 
-      // Перетаскивание мышью / стилусом
-      vp.addEventListener('pointerdown', (e) => {
+      vp.addEventListener('pointerdown', function (e) {
         if (e.pointerType === 'touch') return;
         panning = true;
         vp.classList.add('dragging');
-        vp.setPointerCapture(e.pointerId);
+        try { vp.setPointerCapture(e.pointerId); } catch (err) {}
         startX = e.clientX;
         startY = e.clientY;
         startScrollL = vp.scrollLeft;
         startScrollT = vp.scrollTop;
       });
 
-      vp.addEventListener('pointermove', (e) => {
+      vp.addEventListener('pointermove', function (e) {
         if (!panning) return;
         vp.scrollLeft = startScrollL - (e.clientX - startX);
         vp.scrollTop  = startScrollT - (e.clientY - startY);
       });
 
-      const stopPan = () => {
+      function stopPan() {
         panning = false;
         vp.classList.remove('dragging');
-      };
+      }
       vp.addEventListener('pointerup', stopPan);
       vp.addEventListener('pointercancel', stopPan);
     }
 
-    // Свайп на телефоне/планшете
-    let touchStartX = 0, touchStartY = 0, touchIgnored = false;
-    const stageEl = document.getElementById('stage');
+    // Свайп на телефоне и планшете
+    function bindSwipeNavigation() {
+      const stageEl = document.getElementById('stage');
+      if (!stageEl) return;
+      let touchStartX = 0, touchStartY = 0, touchIgnored = false;
 
-    stageEl.addEventListener('touchstart', (e) => {
-      if (e.target.closest('.no-swipe, button')) {
-        touchIgnored = true;
-        return;
-      }
-      touchIgnored = false;
-      touchStartX = e.changedTouches[0].clientX;
-      touchStartY = e.changedTouches[0].clientY;
-    }, { passive: true });
+      stageEl.addEventListener('touchstart', function (e) {
+        if (e.target && e.target.closest && e.target.closest('.no-swipe, button')) {
+          touchIgnored = true;
+          return;
+        }
+        touchIgnored = false;
+        touchStartX = e.changedTouches[0].clientX;
+        touchStartY = e.changedTouches[0].clientY;
+      }, { passive: true });
 
-    stageEl.addEventListener('touchend', (e) => {
-      if (touchIgnored) return;
-      const dx = e.changedTouches[0].clientX - touchStartX;
-      const dy = e.changedTouches[0].clientY - touchStartY;
-      if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.4) {
-        if (dx < 0) changeSlide(1);
-        else changeSlide(-1);
-      }
-    }, { passive: true });
+      stageEl.addEventListener('touchend', function (e) {
+        if (touchIgnored) return;
+        const dx = e.changedTouches[0].clientX - touchStartX;
+        const dy = e.changedTouches[0].clientY - touchStartY;
+        if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.4) {
+          if (dx < 0) changeSlide(1);
+          else changeSlide(-1);
+        }
+      }, { passive: true });
+    }
 
     // =========================================================================
     // 2. СЛАЙД 2 — ОПИСАНИЕ УЗЛОВ СХЕМЫ
@@ -2347,15 +2380,15 @@
 
     function selectNode(key) {
       const n = NODES[key];
-      if (!n) return;
-      document.querySelectorAll('.svg-node').forEach(el => {
+      const card = document.getElementById('nodeCard');
+      if (!n || !card) return;
+      document.querySelectorAll('.svg-node').forEach(function (el) {
         el.classList.toggle('active', el.getAttribute('data-node') === key);
       });
-      document.getElementById('nodeCard').innerHTML = `
-        <div class="node-group">${n.group}</div>
-        <h3>${n.title}</h3>
-        <ul>${n.points.map(p => `<li>${p}</li>`).join('')}</ul>
-      `;
+      card.innerHTML =
+        '<div class="node-group">' + n.group + '</div>' +
+        '<h3>' + n.title + '</h3>' +
+        '<ul>' + n.points.map(function (p) { return '<li>' + p + '</li>'; }).join('') + '</ul>';
     }
 
     // =========================================================================
@@ -2381,12 +2414,14 @@
       const s = polarToXY(cx, cy, r, startDeg);
       const e = polarToXY(cx, cy, r, endDeg);
       const largeArc = (endDeg - startDeg) > 180 ? 1 : 0;
-      return `M ${s.x.toFixed(1)} ${s.y.toFixed(1)} A ${r} ${r} 0 ${largeArc} 1 ${e.x.toFixed(1)} ${e.y.toFixed(1)}`;
+      return 'M ' + s.x.toFixed(1) + ' ' + s.y.toFixed(1) + ' A ' + r + ' ' + r + ' 0 ' + largeArc + ' 1 ' + e.x.toFixed(1) + ' ' + e.y.toFixed(1);
     }
 
     function buildSpeedDialStatic() {
-      document.getElementById('speedBgArc').setAttribute('d', describeArc(DIAL_CX, DIAL_CY, DIAL_R, START_DEG, START_DEG + SWEEP_DEG));
+      const bgArc = document.getElementById('speedBgArc');
       const ticksG = document.getElementById('speedTicks');
+      if (!bgArc || !ticksG) return;
+      bgArc.setAttribute('d', describeArc(DIAL_CX, DIAL_CY, DIAL_R, START_DEG, START_DEG + SWEEP_DEG));
       ticksG.innerHTML = '';
       for (let v = 0; v <= 140; v += 20) {
         const deg = START_DEG + (v / 140) * SWEEP_DEG;
@@ -2417,30 +2452,35 @@
 
     function buildSegmentedBars() {
       const sBar = document.getElementById('socBar');
-      sBar.innerHTML = '';
-      for (let i = 0; i < 20; i++) {
-        const d2 = document.createElement('div');
-        d2.className = 'seg';
-        sBar.appendChild(d2);
+      if (sBar) {
+        sBar.innerHTML = '';
+        for (let i = 0; i < 20; i++) {
+          const d2 = document.createElement('div');
+          d2.className = 'seg';
+          sBar.appendChild(d2);
+        }
       }
 
       const modG = document.getElementById('battModulesGroup');
-      modG.innerHTML = '';
-      for (let i = 0; i < 12; i++) {
-        const r = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-        r.setAttribute('x', String(233 + i * 20));
-        r.setAttribute('y', '156');
-        r.setAttribute('width', '16');
-        r.setAttribute('height', '16');
-        r.setAttribute('rx', '2');
-        r.setAttribute('fill', '#1c2636');
-        r.setAttribute('class', 'batt-cell');
-        modG.appendChild(r);
+      if (modG) {
+        modG.innerHTML = '';
+        for (let i = 0; i < 12; i++) {
+          const r = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+          r.setAttribute('x', String(233 + i * 20));
+          r.setAttribute('y', '156');
+          r.setAttribute('width', '16');
+          r.setAttribute('height', '16');
+          r.setAttribute('rx', '2');
+          r.setAttribute('fill', '#1c2636');
+          r.setAttribute('class', 'batt-cell');
+          modG.appendChild(r);
+        }
       }
     }
 
     function bindDialInteraction() {
       const svg = document.getElementById('speedDial');
+      if (!svg) return;
       let dragging = false;
 
       function applyPoint(e) {
@@ -2456,18 +2496,19 @@
         updateSim();
       }
 
-      svg.addEventListener('pointerdown', (e) => {
+      svg.addEventListener('pointerdown', function (e) {
         dragging = true;
-        svg.setPointerCapture(e.pointerId);
+        try { svg.setPointerCapture(e.pointerId); } catch (err) {}
         applyPoint(e);
       });
-      svg.addEventListener('pointermove', (e) => { if (dragging) applyPoint(e); });
-      svg.addEventListener('pointerup', () => { dragging = false; });
-      svg.addEventListener('pointercancel', () => { dragging = false; });
+      svg.addEventListener('pointermove', function (e) { if (dragging) applyPoint(e); });
+      svg.addEventListener('pointerup', function () { dragging = false; });
+      svg.addEventListener('pointercancel', function () { dragging = false; });
     }
 
     function bindBarInteraction(elId, minVal, maxVal, setter) {
       const el = document.getElementById(elId);
+      if (!el) return;
       let dragging = false;
 
       function applyX(e) {
@@ -2478,18 +2519,19 @@
         updateSim();
       }
 
-      el.addEventListener('pointerdown', (e) => {
+      el.addEventListener('pointerdown', function (e) {
         dragging = true;
-        el.setPointerCapture(e.pointerId);
+        try { el.setPointerCapture(e.pointerId); } catch (err) {}
         applyX(e);
       });
-      el.addEventListener('pointermove', (e) => { if (dragging) applyX(e); });
-      el.addEventListener('pointerup', () => { dragging = false; });
-      el.addEventListener('pointercancel', () => { dragging = false; });
+      el.addEventListener('pointermove', function (e) { if (dragging) applyX(e); });
+      el.addEventListener('pointerup', function () { dragging = false; });
+      el.addEventListener('pointercancel', function () { dragging = false; });
     }
 
     function bindPedalInteraction() {
       const box = document.getElementById('brakePedalBox');
+      if (!box) return;
       let dragging = false;
 
       function applyPedalX(e) {
@@ -2501,16 +2543,14 @@
         updateSim();
       }
 
-      box.addEventListener('pointerdown', (e) => {
+      box.addEventListener('pointerdown', function (e) {
         dragging = true;
-        box.setPointerCapture(e.pointerId);
+        try { box.setPointerCapture(e.pointerId); } catch (err) {}
         applyPedalX(e);
       });
-      box.addEventListener('pointermove', (e) => {
-        if (dragging) applyPedalX(e);
-      });
-      box.addEventListener('pointerup', () => { dragging = false; });
-      box.addEventListener('pointercancel', () => { dragging = false; });
+      box.addEventListener('pointermove', function (e) { if (dragging) applyPedalX(e); });
+      box.addEventListener('pointerup', function () { dragging = false; });
+      box.addEventListener('pointercancel', function () { dragging = false; });
     }
 
     function stepSpeed(delta) {
@@ -2538,7 +2578,9 @@
     }
 
     function clearPresetHighlight() {
-      document.querySelectorAll('#presetBar .pill-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('#presetBar .pill-btn').forEach(function (b) {
+        b.classList.remove('active');
+      });
     }
 
     function applyPreset(mode, btn) {
@@ -2564,7 +2606,11 @@
     }
 
     function updateSim() {
-      const { speed, brake, soc, level, isCold } = sim;
+      const speed = sim.speed;
+      const brake = sim.brake;
+      const soc = sim.soc;
+      const level = sim.level;
+      const isCold = sim.isCold;
 
       // 1. Спидометр
       document.getElementById('speedVal').textContent = String(speed);
@@ -2579,14 +2625,14 @@
       document.getElementById('speedKnob').setAttribute('cx', knobPos.x.toFixed(1));
       document.getElementById('speedKnob').setAttribute('cy', knobPos.y.toFixed(1));
 
-      // 2. Педаль тормоза (поворот вокруг верхней оси 92,22 слева направо)
+      // 2. Педаль тормоза
       const vBrakeEl = document.getElementById('vBrake');
-      vBrakeEl.textContent = `${brake}%`;
+      vBrakeEl.textContent = brake + '%';
       const pedalColor = brake >= 75 ? '#ef4444' : (brake >= 40 ? '#f97316' : '#38bdf8');
       vBrakeEl.style.color = brake > 0 ? pedalColor : '#94a3b8';
 
       const rotDeg = (brake / 100) * 44;
-      document.getElementById('pedalArmGroup').setAttribute('transform', `rotate(${(-rotDeg).toFixed(1)}, 92, 22)`);
+      document.getElementById('pedalArmGroup').setAttribute('transform', 'rotate(' + (-rotDeg).toFixed(1) + ', 92, 22)');
 
       const rad = (-rotDeg * Math.PI) / 180;
       const pinX = 92 + (-14) * Math.cos(rad) - 33 * Math.sin(rad);
@@ -2615,12 +2661,12 @@
       // 3. Лепестки
       const lvlNames = ['Ур. 0 (выкл.)', 'Ур. 1', 'Ур. 2', 'Ур. 3', 'i-Pedal'];
       document.getElementById('vPaddleTxt').textContent = lvlNames[level];
-      document.querySelectorAll('#paddleLevels .p-btn').forEach(el => {
+      document.querySelectorAll('#paddleLevels .p-btn').forEach(function (el) {
         el.classList.toggle('on', parseInt(el.getAttribute('data-lvl'), 10) === level);
       });
 
       // 4. Заряд и температура ВВБ
-      document.getElementById('vSoc').textContent = `${soc}%`;
+      document.getElementById('vSoc').textContent = soc + '%';
       const sCells = document.getElementById('socBar').children;
       const sLit = Math.round((soc / 100) * sCells.length);
       const socColor = isCold ? '#60a5fa' : (soc > 92 ? '#eab308' : '#22c55e');
@@ -2703,24 +2749,24 @@
       const retKj = (speed === 0 || totalKw <= 0.1) ? 0 : Math.round(ekKj * 0.72 * (regenKw / totalKw));
 
       // 6. Вывод показателей
-      document.getElementById('pctRegen').textContent = `${pctRegen}%`;
-      document.getElementById('pctHyd').textContent   = `${pctHyd}%`;
-      document.getElementById('barRegen').style.width = `${pctRegen}%`;
-      document.getElementById('barHyd').style.width   = `${pctHyd}%`;
+      document.getElementById('pctRegen').textContent = pctRegen + '%';
+      document.getElementById('pctHyd').textContent   = pctHyd + '%';
+      document.getElementById('barRegen').style.width = pctRegen + '%';
+      document.getElementById('barHyd').style.width   = pctHyd + '%';
 
-      document.getElementById('outPower').textContent   = regenKw > 0.05 ? `−${fmt(regenKw, 1)} кВт` : '0,0 кВт';
-      document.getElementById('outCurrent').textContent = currentA > 0.05 ? `Ток ВВБ: −${fmt(currentA, 1)} А` : 'Ток ВВБ: 0,0 А';
-      document.getElementById('outVolt').textContent    = `${uBat} В`;
+      document.getElementById('outPower').textContent   = regenKw > 0.05 ? ('−' + fmt(regenKw, 1) + ' кВт') : '0,0 кВт';
+      document.getElementById('outCurrent').textContent = currentA > 0.05 ? ('Ток ВВБ: −' + fmt(currentA, 1) + ' А') : 'Ток ВВБ: 0,0 А';
+      document.getElementById('outVolt').textContent    = uBat + ' В';
       document.getElementById('outTemp').textContent    = isCold ? 'Температура: −15 °C' : 'Температура: +24 °C';
-      document.getElementById('outTorque').textContent  = torqueNm > 0 ? `−${torqueNm} Н·м` : '0 Н·м';
-      document.getElementById('outDecel').textContent   = `Замедление: ${fmt(decelG, 2)} g`;
-      document.getElementById('outPress').textContent   = `${fmt(hydBar, 1)} бар`;
-      document.getElementById('outEnergy').textContent  = `Возврат до 0: ${retKj} кДж`;
+      document.getElementById('outTorque').textContent  = torqueNm > 0 ? ('−' + torqueNm + ' Н·м') : '0 Н·м';
+      document.getElementById('outDecel').textContent   = 'Замедление: ' + fmt(decelG, 2) + ' g';
+      document.getElementById('outPress').textContent   = fmt(hydBar, 1) + ' бар';
+      document.getElementById('outEnergy').textContent  = 'Возврат до 0: ' + retKj + ' кДж';
 
       // 7. Анимация узлов
       const xCells = document.querySelectorAll('#battModulesGroup .batt-cell');
       const litModules = Math.max(1, Math.round((soc / 100) * xCells.length));
-      xCells.forEach((cell, idx) => {
+      xCells.forEach(function (cell, idx) {
         cell.setAttribute('fill', idx < litModules ? socColor : '#1c2636');
         cell.setAttribute('opacity', idx < litModules ? (regenKw > 1 ? '0.95' : '0.62') : '0.45');
       });
@@ -2729,7 +2775,7 @@
       document.getElementById('hydFlowGroup').setAttribute('opacity', hydBar > 0.5 ? '1' : '0.14');
 
       const discFill = hydBar > 0.5 ? '#f97316' : '#526580';
-      const discOp   = hydBar > 0.5 ? String(Math.min(1, 0.45 + (hydBar / 65) * 0.55).toFixed(2)) : '0.45';
+      const discOp   = hydBar > 0.5 ? Math.min(1, 0.45 + (hydBar / 65) * 0.55).toFixed(2) : '0.45';
       document.getElementById('discFront').setAttribute('fill', discFill);
       document.getElementById('discFront').setAttribute('opacity', discOp);
       document.getElementById('discRear').setAttribute('fill', discFill);
@@ -2756,13 +2802,13 @@
         statusTxt.textContent = 'Рекуперация отключена (Ур. 0): торможение только гидравликой IEB A1';
       } else if (brake === 0 && level > 0) {
         statusEl.className = 'status-line info';
-        statusTxt.textContent = `Рекуперация лепестками (${lvlNames[level]}) без нажатия тормоза`;
+        statusTxt.textContent = 'Рекуперация лепестками (' + lvlNames[level] + ') без нажатия тормоза';
       } else if (limitReason === 'panic') {
         statusEl.className = 'status-line danger';
         statusTxt.textContent = 'Экстренное торможение (> 0,35 g): PMSM + полное давление IEB';
       } else if (limitReason === 'fullSoc') {
         statusEl.className = 'status-line warn';
-        statusTxt.textContent = `Заряд ${soc}%: BMS ограничивает ток, IEB дожимает колодками`;
+        statusTxt.textContent = 'Заряд ' + soc + '%: BMS ограничивает ток, IEB дожимает колодками';
       } else if (limitReason === 'cold') {
         statusEl.className = 'status-line info';
         statusTxt.textContent = 'Холодная ВВБ (−15 °C): лимит BMS 22 кВт, компенсация IEB';
@@ -2786,28 +2832,4 @@
       if (sim.speed > 0) {
         wheelAngle = (wheelAngle + sim.speed * 9.2 * dt) % 360;
         roadOffset = (roadOffset + sim.speed * 2.6 * dt) % 152;
-        const rot = `rotate(${wheelAngle.toFixed(1)})`;
-        document.getElementById('wheelFront').setAttribute('transform', rot);
-        document.getElementById('wheelRear').setAttribute('transform', rot);
-        document.getElementById('roadMarks').setAttribute('transform', `translate(${(-roadOffset).toFixed(1)}, 0)`);
-      }
-      requestAnimationFrame(animateCar);
-    }
-
-    // =========================================================================
-    // 4. СЛАЙД 4 — РАСЧЁТ 400 В / 800 В
-    // =========================================================================
-    function setCalcPower(kw, btn) {
-      document.querySelectorAll('.pwr-btn').forEach(b => b.classList.remove('active'));
-      if (btn) btn.classList.add('active');
-
-      const rSum = 0.08;
-      const i400 = (kw * 1000) / 400;
-      const i800 = (kw * 1000) / 800;
-      const loss400 = (i400 * i400 * rSum) / 1000;
-      const loss800 = (i800 * i800 * rSum) / 1000;
-
-      document.getElementById('c400I').innerHTML    = `<b>${fmt(i400, 1)} А</b>`;
-      document.getElementById('c800I').innerHTML    = `<b>${fmt(i800, 1)} А</b>`;
-      document.getElementById('c400Loss').innerHTML = `<b>${fmt(loss400, 2)} кВт</b>`;
-      document.getElementById('c800Loss').innerHTML = `<b
+  
