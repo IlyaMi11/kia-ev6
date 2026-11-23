@@ -941,6 +941,44 @@
       color: var(--accent);
     }
 
+    .pedal-slider-wrap {
+      padding: 4px 2px 0 2px;
+    }
+
+    .pedal-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 10px;
+      border-radius: 5px;
+      background: #232c3d;
+      outline: none;
+      cursor: pointer;
+      touch-action: none;
+    }
+
+    .pedal-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 3px solid var(--accent);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
+      cursor: pointer;
+    }
+
+    .pedal-slider::-moz-range-thumb {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 3px solid var(--accent);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
+      cursor: pointer;
+    }
+
     .paddle-bar {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
@@ -1819,7 +1857,7 @@
             <div class="ctrl-group">
               <div class="ctrl-row-head">
                 <span>Педаль тормоза</span>
-                <span style="font-size:11.5px;color:var(--text-mute);">Тяните слева → направо</span>
+                <span style="font-size:11.5px;color:var(--text-mute);">Педаль или ползунок</span>
               </div>
               <div id="brakePedalBox" class="pedal-box" title="Нажмите и двигайте мышь слева направо для нажатия педали">
                 <svg id="brakePedalSvg" class="pedal-svg" viewBox="0 0 260 112" xmlns="http://www.w3.org/2000/svg" aria-label="Педаль тормоза">
@@ -1852,6 +1890,10 @@
                   <b id="vBrake" class="num">35%</b>
                 </div>
               </div>
+              <div class="pedal-slider-wrap">
+                <input id="brakeSlider" type="range" min="0" max="100" value="35" class="pedal-slider"
+                       aria-label="Уровень нажатия педали тормоза" oninput="onBrakeSlider(this.value)">
+              </div>
             </div>
 
             <div class="ctrl-group">
@@ -1859,11 +1901,11 @@
                 <span>Уровень рекуперации</span>
                 <b id="vPaddleTxt" style="color:var(--accent);">Ур. 2</b>
               </div>
-              <div class="paddle-bar" id="paddleLevels">
-                <button type="button" class="p-btn" data-lvl="0" onclick="setPaddle(0)">0</button>
-                <button type="button" class="p-btn" data-lvl="1" onclick="setPaddle(1)">1</button>
-                <button type="button" class="p-btn on" data-lvl="2" onclick="setPaddle(2)">2</button>
-                <button type="button" class="p-btn" data-lvl="3" onclick="setPaddle(3)">3</button>
+              <div id="paddleLevels" class="paddle-bar">
+                <button type="button" class="p-btn num" data-lvl="0" onclick="setPaddle(0)">0</button>
+                <button type="button" class="p-btn num" data-lvl="1" onclick="setPaddle(1)">1</button>
+                <button type="button" class="p-btn num on" data-lvl="2" onclick="setPaddle(2)">2</button>
+                <button type="button" class="p-btn num" data-lvl="3" onclick="setPaddle(3)">3</button>
                 <button type="button" class="p-btn ip" data-lvl="4" onclick="setPaddle(4)">i-P</button>
               </div>
             </div>
@@ -2514,6 +2556,12 @@
       updateSim();
     }
 
+    function onBrakeSlider(val) {
+      sim.brake = Math.max(0, Math.min(100, parseInt(val, 10) || 0));
+      clearPresetHighlight();
+      updateSim();
+    }
+
     function setPaddle(lvl) {
       sim.level = Math.max(0, Math.min(4, lvl));
       clearPresetHighlight();
@@ -2577,6 +2625,12 @@
       vBrakeEl.textContent = brake + '%';
       const pedalColor = brake >= 75 ? '#ef4444' : (brake >= 40 ? '#f97316' : '#38bdf8');
       vBrakeEl.style.color = brake > 0 ? pedalColor : '#94a3b8';
+
+      const brakeSliderEl = document.getElementById('brakeSlider');
+      if (brakeSliderEl) {
+        brakeSliderEl.value = String(brake);
+        brakeSliderEl.style.background = 'linear-gradient(90deg, ' + pedalColor + ' 0%, ' + pedalColor + ' ' + brake + '%, #232c3d ' + brake + '%, #232c3d 100%)';
+      }
 
       const rotDeg = (brake / 100) * 44;
       document.getElementById('pedalArmGroup').setAttribute('transform', 'rotate(' + (-rotDeg).toFixed(1) + ', 92, 22)');
@@ -2821,15 +2875,4 @@
       try { goToSlide(1); } catch (e) {}
       try { selectNode('pmsm'); } catch (e) {}
       try { updateSim(); } catch (e) {}
-      try { requestAnimationFrame(animateCar); } catch (e) {}
-    }
-
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initApp);
-    } else {
-      initApp();
-    }
-  </script>
-</body>
-</html>
-```
+      try { requestAnimationFrame(animateCar
